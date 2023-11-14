@@ -1,0 +1,32 @@
+project:
+  type: website
+
+website:
+  title: "ISSS624 Geo"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - text: "Hands on Ex"
+        menu: 
+          - text: "Hands on 1"
+            href: "Handson_Ex/Handson_Ex01/Handson_Ex01.html"
+          - text: "Hands on 3"
+            href: "Handson_Ex/Handson_Ex03/Handson_Ex03.html"
+          - text: "Hands on 4"
+            href: "Handson_Ex/Handson_Ex04/Handson_Ex04.html"
+      - text: "Take Home Ex"
+        menu: 
+          - text: "Take Home 1"
+            href: "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html"
+          - text: "Take Home 2"
+            href: "Take-home_Ex/Take-home_Ex02/Take-home_Ex02.html"
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+
+editor: visual
+
