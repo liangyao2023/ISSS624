@@ -11,16 +11,16 @@ website:
         menu: 
           - text: "Hands on 1"
             href: "Handson_Ex/Handson_Ex01/Handson_Ex01.html"
+          - text: "Hands on 2"
+            href: "Handson_Ex/Handson_Ex03/Handson_Ex02.html"
           - text: "Hands on 3"
-            href: "Handson_Ex/Handson_Ex03/Handson_Ex03.html"
-          - text: "Hands on 4"
-            href: "Handson_Ex/Handson_Ex04/Handson_Ex04.html"
+            href: "Handson_Ex/Handson_Ex04/Handson_Ex03.html"
       - text: "Take Home Ex"
         menu: 
           - text: "Take Home 1"
-            href: "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html"
+            href: "Takehome_Ex/Takehome_Ex01/Take-home_Ex01.html"
           - text: "Take Home 2"
-            href: "Take-home_Ex/Take-home_Ex02/Take-home_Ex02.html"
+            href: "Takehome_Ex/Takehome_Ex02/Take-home_Ex02.html"
 
 format:
   html:
