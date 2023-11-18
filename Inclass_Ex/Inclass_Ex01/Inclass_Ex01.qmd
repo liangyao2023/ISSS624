@@ -1,0 +1,122 @@
+---
+title: "In Class Exercise 1"
+author: "LIANG YAO"
+date: '18 Nov 2023'
+date-modified: "`r Sys.Date()`"
+execute: 
+  warning: false
+  echo: true
+  eval: true
+format: 
+  html: 
+    code-fold: true
+    code-summary: "Show the code"
+---
+
+## 1 Data Acquisition
+
+SSS624 Applied Geospatial Analytics will be conducted using case study approach. This run the use case is Urban Mobility analysis by using passenger volume by origin-destination bus stops. To get ready for the excercise, you are required to do the following as soon as possible:
+
+-   Apply an API access from LTA by visiting [LTA DataMall](https://datamall.lta.gov.sg/content/datamall/en.html),
+
+-   Complete the API Access form  and submit.  Please note that it will take at least one working day to reply you.
+
+-   Next, return to Dynamic Datasets page and click on API Documentation. The pdf document appears.  Click on 2.6 and read the content carefully.
+
+-   Once you received the API access code, read Section 1 of API Document and follow the instruction provided to download the data sets. You are required to download last three months data (August, September and October).
+
+## 2 Data Preparation
+
+### 2.1 Get ready
+
+In this exercise, 3 R packages will be used. They are:
+
+-   **tmap** for thematic mapping,
+
+-   **sf** for importing, managing, and processing geospatial data, and
+
+-   **tidyverse** for performing data science tasks such as importing, wrangling and visualizing data.
+
+```{r}
+pacman::p_load(tmap, sf, tidyverse)
+```
+
+### 2.2 Importing the OD Data
+
+Import the passenger volume by origin destination bus stops data.
+
+```{r}
+#| eval: false
+odbus <- read_csv("data/aspatial/origin_destination_bus_202308.csv")
+```
+
+Change data format for further wrangling.
+
+```{r}
+#| eval: false
+odbus$ORIGIN_PT_CODE <- as.factor(odbus$ORIGIN_PT_CODE)
+odbus$DESTINATION_PT_CODE <- as.factor(odbus$DESTINATION_PT_CODE)
+```
+
+### 2.3 Extracting Data
+
+Extract passenger volume data between 7-9 o'clock during weekdays.
+
+```{r}
+#| eval: false
+origtrip_7_9 <- odbus %>%
+  filter(DAY_TYPE == "WEEKDAY") %>%
+  filter(TIME_PER_HOUR >= 7 & TIME_PER_HOUR <= 9) %>%
+  group_by(ORIGIN_PT_CODE) %>%
+  summarise(TRIPS = sum(TOTAL_TRIPS))
+```
+
+## 3 Working with GeoSpatial Data
+
+### 3.1 Importing Data
+
+Use sf package to read master plan subzone data and bus stop location data.
+
+```{r}
+#| eval: false
+mpsz = st_read(dsn = "data/geospatial", 
+                  layer = "MPSZ-2019") %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+#| eval: false
+busstop = st_read(dsn = "data/geospatial/BusStopLocation_Jul2023", 
+                         layer = "BusStop") %>%
+  st_transform(crs = 3414)
+```
+
+::: callout-notice
+Here we use "st_transform(crs = 3414)" to change the coordinate from decimal degree to meters.
+:::
+
+### 3.2 Wrangling Data
+
+Check the associated attribute information in the data frame using *glimpse()* of **dplyr**.
+
+```{r}
+
+```
+
+### 3.3 Combining Busstop and mpsz
+
+Combine the bus stop location with the Singapore subzone map.
+
+```{r}
+
+```
+
+### 3.4 Plotting the Geospatial Data
+
+In geospatial data science, by looking at the feature information is not enough. We are also interested to visualise the geospatial features. This is the time you will find *plot()* of R Graphic comes in very handy as shown in the code chunk below.
+
+```{r}
+
+```
+
+### 3.5 Viewing subzone

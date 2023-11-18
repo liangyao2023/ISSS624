@@ -1,17 +1,31 @@
 [
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "ISSS624 Applied Geospatial Analytics",
+    "objectID": "Inclass_Ex/Inclass_Ex01/Inclass_Ex01.html",
+    "href": "Inclass_Ex/Inclass_Ex01/Inclass_Ex01.html",
+    "title": "In Class Exercise 1",
     "section": "",
-    "text": "This is a Quarto website to introduce you about ISSS624 Applied Geospatial Analytics."
+    "text": "SSS624 Applied Geospatial Analytics will be conducted using case study approach. This run the use case is Urban Mobility analysis by using passenger volume by origin-destination bus stops. To get ready for the excercise, you are required to do the following as soon as possible:\n\nApply an API access from LTA by visiting LTA DataMall,\nComplete the API Access form  and submit.  Please note that it will take at least one working day to reply you.\nNext, return to Dynamic Datasets page and click on API Documentation. The pdf document appears.  Click on 2.6 and read the content carefully.\nOnce you received the API access code, read Section 1 of API Document and follow the instruction provided to download the data sets. You are required to download last three months data (August, September and October)."
   },
   {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
+    "objectID": "Inclass_Ex/Inclass_Ex01/Inclass_Ex01.html#data-preparation",
+    "href": "Inclass_Ex/Inclass_Ex01/Inclass_Ex01.html#data-preparation",
+    "title": "In Class Exercise 1",
+    "section": "2 Data Preparation",
+    "text": "2 Data Preparation\n\n2.1 Get ready\nIn this exercise, 3 R packages will be used. They are:\n\ntmap for thematic mapping,\nsf for importing, managing, and processing geospatial data, and\ntidyverse for performing data science tasks such as importing, wrangling and visualizing data.\n\n\n\nShow the code\npacman::p_load(tmap, sf, tidyverse)\n\n\n\n\n2.2 Importing the OD Data\nImport the passenger volume by origin destination bus stops data.\n\n\nShow the code\nodbus <- read_csv(\"data/aspatial/origin_destination_bus_202308.csv\")\n\n\nChange data format for further wrangling.\n\n\nShow the code\nodbus$ORIGIN_PT_CODE <- as.factor(odbus$ORIGIN_PT_CODE)\nodbus$DESTINATION_PT_CODE <- as.factor(odbus$DESTINATION_PT_CODE)\n\n\n\n\n2.3 Extracting Data\nExtract passenger volume data between 7-9 o’clock during weekdays.\n\n\nShow the code\norigtrip_7_9 <- odbus %>%\n  filter(DAY_TYPE == \"WEEKDAY\") %>%\n  filter(TIME_PER_HOUR >= 7 & TIME_PER_HOUR <= 9) %>%\n  group_by(ORIGIN_PT_CODE) %>%\n  summarise(TRIPS = sum(TOTAL_TRIPS))"
+  },
+  {
+    "objectID": "Inclass_Ex/Inclass_Ex01/Inclass_Ex01.html#working-with-geospatial-data",
+    "href": "Inclass_Ex/Inclass_Ex01/Inclass_Ex01.html#working-with-geospatial-data",
+    "title": "In Class Exercise 1",
+    "section": "3 Working with GeoSpatial Data",
+    "text": "3 Working with GeoSpatial Data\n\n3.1 Importing Data\nUse sf package to read master plan subzone data and bus stop location data.\n\n\nShow the code\nmpsz = st_read(dsn = \"data/geospatial\", \n                  layer = \"MPSZ-2019\") %>%\n  st_transform(crs = 3414)\n\n\n\n\nShow the code\nbusstop = st_read(dsn = \"data/geospatial/BusStopLocation_Jul2023\", \n                         layer = \"BusStop\") %>%\n  st_transform(crs = 3414)\n\n\n\n\n\n\n\n\nNotice\n\n\n\nHere we use “st_transform(crs = 3414)” to change the coordinate from decimal degree to meters.\n\n\n\n\n3.2 Wrangling Data\nCheck the associated attribute information in the data frame using glimpse() of dplyr.\n\n\n\n\n\n3.3 Combining Busstop and mpsz\nCombine the bus stop location with the Singapore subzone map.\n\n\n\n\n\n3.4 Plotting the Geospatial Data\nIn geospatial data science, by looking at the feature information is not enough. We are also interested to visualise the geospatial features. This is the time you will find plot() of R Graphic comes in very handy as shown in the code chunk below.\n\n\n\n\n\n3.5 Viewing subzone"
+  },
+  {
+    "objectID": "Inclass_Ex/Inclass_Ex01/data/geospatial/MPSZ-2019.html",
+    "href": "Inclass_Ex/Inclass_Ex01/data/geospatial/MPSZ-2019.html",
+    "title": "ISSS624 Geospatial Analytics",
     "section": "",
-    "text": "About this site\n\n1 + 1\n\n[1] 2"
+    "text": "<!DOCTYPE qgis PUBLIC ‘http://mrcc.com/qgis.dtd’ ‘SYSTEM’>     dataset\n\n\n        0 0     false"
   },
   {
     "objectID": "Handson_Ex/Handson_Ex01/Handson_Ex01.html",
@@ -40,5 +54,33 @@
     "title": "Hands on Exercise 1",
     "section": "3 Reference",
     "text": "3 Reference\n\n3.1 All about tmap package\n\ntmap: Thematic Maps in R\ntmap\ntmap: get started!\ntmap: changes in version 2.0\ntmap: creating thematic maps in a flexible way (useR!2015)\nExploring and presenting maps with tmap (useR!2017)\n\n\n\n3.2 Geospatial data wrangling\n\nsf: Simple Features for R\nSimple Features for R: StandardizedSupport for Spatial Vector Data\nReading, Writing and Converting Simple Features\n\n\n\n3.3 Data wrangling\n\ndplyr\nTidy data\ntidyr: Easily Tidy Data with ‘spread()’ and ‘gather()’ Functions"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "ISSS624 Applied Geospatial Analytics",
+    "section": "",
+    "text": "This is a Quarto website to introduce you about ISSS624 Applied Geospatial Analytics."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "Takehome_Ex/Takehome_Ex01/Takehome_Ex01.html",
+    "href": "Takehome_Ex/Takehome_Ex01/Takehome_Ex01.html",
+    "title": "Take Home Exercise 1",
+    "section": "",
+    "text": "SSS624 Applied Geospatial Analytics will be conducted using case study approach. This run the use case is Urban Mobility analysis by using passenger volume by origin-destination bus stops. To get ready for the excercise, you are required to do the following as soon as possible:\n\nApply an API access from LTA by visiting LTA DataMall,\nComplete the API Access form  and submit.  Please note that it will take at least one working day to reply you.\nNext, return to Dynamic Datasets page and click on API Documentation. The pdf document appears.  Click on 2.6 and read the content carefully.\nOnce you received the API access code, read Section 1 of API Document and follow the instruction provided to download the data sets. You are required to download last three months data (August, September and October).\n\n\n\n\nIn this exercise, two R packages will be used. They are:\n\nsf for importing, managing, and processing geospatial data, and\ntidyverse for performing data science tasks such as importing, wrangling and visualizing data.\n\n\n\nShow the code\npacman::p_load(tmap, sf, tidyverse)\n\n\n\n\n\n\nShow the code\nmpsz = st_read(dsn = \"data/geospatial\", \n                  layer = \"MPSZ-2019\")\n\n\nReading layer `MPSZ-2019' from data source \n  `/Users/SMU/liangyao2023/ISSS624/Takehome_Ex/Takehome_Ex01/data/geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 332 features and 6 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 103.6057 ymin: 1.158699 xmax: 104.0885 ymax: 1.470775\nGeodetic CRS:  WGS 84\n\n\n\n\n\nImport the bus stop location data.\n\n\nShow the code\nbusstop = st_read(dsn = \"data/geospatial/BusStopLocation_Jul2023\", \n                         layer = \"BusStop\")\n\n\nReading layer `BusStop' from data source \n  `/Users/SMU/liangyao2023/ISSS624/Takehome_Ex/Takehome_Ex01/data/geospatial/BusStopLocation_Jul2023' \n  using driver `ESRI Shapefile'\nSimple feature collection with 5161 features and 3 fields\nGeometry type: POINT\nDimension:     XY\nBounding box:  xmin: 3970.122 ymin: 26482.1 xmax: 48284.56 ymax: 52983.82\nProjected CRS: SVY21\n\n\nImport the bus stop by origin destination data.\n\n\n\n\n\n\nThe pre-schools-location-kml is in kml format. The code chunk below will be used to import the kml into R. Notice that in the code chunk below, the complete path and the kml file extension were provided.\n\n\n\nThe message above reveals that preschool is a point feature data frame. There are a total of 1359 features and 2 fields. Different from the previous two simple feature data frame, preschool is in wgs84 coordinates system."
+  },
+  {
+    "objectID": "Takehome_Ex/Takehome_Ex01/data/geospatial/MPSZ-2019.html",
+    "href": "Takehome_Ex/Takehome_Ex01/data/geospatial/MPSZ-2019.html",
+    "title": "ISSS624 Geospatial Analytics",
+    "section": "",
+    "text": "<!DOCTYPE qgis PUBLIC ‘http://mrcc.com/qgis.dtd’ ‘SYSTEM’>     dataset\n\n\n        0 0     false"
   }
 ]
