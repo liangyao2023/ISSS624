@@ -95,7 +95,7 @@ cyclingpath = st_read(dsn = "data/geospatial/CyclingPath_Jul2023",
                          layer = "CyclingPathGazette")
 ```
 
-The message above reveals that there are a total of 1625 features and 2 fields in `cyclingpath` linestring feature data frame and it is in **svy21** projected coordinates system too.
+The message above reveals that there are a total of 2558 features and 2 fields in `cyclingpath` linestring feature data frame and it is in **svy21** projected coordinates system too.
 
 ### 2.3 Importing GIS data in kml format
 
@@ -336,7 +336,7 @@ mpsz3414 <- mpsz3414 %>%
   mutate(`PreSch Density` = `PreSch Count`/Area * 1000000)
 ```
 
-## 8 Explorotary Data Analysis (EDA)
+## 8 Exploratory Data Analysis (EDA)
 
 In practice, many geospatial analytics start with Exploratory Data Analysis. In this section, you will learn how to use appropriate [ggplot2](https://ggplot2.tidyverse.org/) functions to create functional and yet truthful statistical graphs for EDA purposes.
 
@@ -424,7 +424,7 @@ mpsz
 
 ### 1.3 Importing Attribute Data into R
 
-Next, we will import *respopagsex2000to2018.csv* file into RStudio and save the file into an R dataframe called *popagsex*.
+Next, we will import *respopagsextod2011to2022.csv* file into RStudio and save the file into an R dataframe called *popdata*.
 
 The task will be performed by using *read_csv()* function of **readr** package as shown in the code chunk below.
 

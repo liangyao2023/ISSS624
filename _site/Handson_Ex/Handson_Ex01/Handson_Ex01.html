@@ -259,7 +259,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <li><a href="#buffering" id="toc-buffering" class="nav-link" data-scroll-target="#buffering">7.1 Buffering</a></li>
   <li><a href="#point-in-polygon-count" id="toc-point-in-polygon-count" class="nav-link" data-scroll-target="#point-in-polygon-count">7.2 Point-in-polygon count</a></li>
   </ul></li>
-  <li><a href="#explorotary-data-analysis-eda" id="toc-explorotary-data-analysis-eda" class="nav-link" data-scroll-target="#explorotary-data-analysis-eda">8 Explorotary Data Analysis (EDA)</a></li>
+  <li><a href="#exploratory-data-analysis-eda" id="toc-exploratory-data-analysis-eda" class="nav-link" data-scroll-target="#exploratory-data-analysis-eda">8 Exploratory Data Analysis (EDA)</a></li>
   </ul></li>
   <li><a href="#choropleth-mapping-with-r" id="toc-choropleth-mapping-with-r" class="nav-link" data-scroll-target="#choropleth-mapping-with-r">Choropleth Mapping with R</a>
   <ul class="collapse">
@@ -319,7 +319,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">November 18, 2023</p>
+      <p class="date-modified">November 22, 2023</p>
     </div>
   </div>
     
@@ -434,7 +434,7 @@ Bounding box:  xmin: 11854.32 ymin: 28347.98 xmax: 42626.09 ymax: 48948.15
 Projected CRS: SVY21</code></pre>
 </div>
 </div>
-<p>The message above reveals that there are a total of 1625 features and 2 fields in <code>cyclingpath</code> linestring feature data frame and it is in <strong>svy21</strong> projected coordinates system too.</p>
+<p>The message above reveals that there are a total of 2558 features and 2 fields in <code>cyclingpath</code> linestring feature data frame and it is in <strong>svy21</strong> projected coordinates system too.</p>
 </section>
 <section id="importing-gis-data-in-kml-format" class="level3">
 <h3 class="anchored" data-anchor-id="importing-gis-data-in-kml-format">2.3 Importing GIS data in kml format</h3>
@@ -913,8 +913,8 @@ Projected CRS: SVY21 / Singapore TM
 </div>
 </section>
 </section>
-<section id="explorotary-data-analysis-eda" class="level2">
-<h2 class="anchored" data-anchor-id="explorotary-data-analysis-eda">8 Explorotary Data Analysis (EDA)</h2>
+<section id="exploratory-data-analysis-eda" class="level2">
+<h2 class="anchored" data-anchor-id="exploratory-data-analysis-eda">8 Exploratory Data Analysis (EDA)</h2>
 <p>In practice, many geospatial analytics start with Exploratory Data Analysis. In this section, you will learn how to use appropriate <a href="https://ggplot2.tidyverse.org/">ggplot2</a> functions to create functional and yet truthful statistical graphs for EDA purposes.</p>
 <p>Firstly, we will plot a histogram to reveal the distribution of <code>PreSch Density</code>. Conventionally, <em>hist()</em> of R Graphics will be used as shown in the code chunk below.</p>
 <div class="cell">
@@ -1064,7 +1064,7 @@ First 10 features:
 </section>
 <section id="importing-attribute-data-into-r" class="level3">
 <h3 class="anchored" data-anchor-id="importing-attribute-data-into-r">1.3 Importing Attribute Data into R</h3>
-<p>Next, we will import <em>respopagsex2000to2018.csv</em> file into RStudio and save the file into an R dataframe called <em>popagsex</em>.</p>
+<p>Next, we will import <em>respopagsextod2011to2022.csv</em> file into RStudio and save the file into an R dataframe called <em>popdata</em>.</p>
 <p>The task will be performed by using <em>read_csv()</em> function of <strong>readr</strong> package as shown in the code chunk below.</p>
 <div class="cell">
 <details>
