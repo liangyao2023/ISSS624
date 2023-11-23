@@ -1,0 +1,85 @@
+---
+title: "Take Home Exercise 2"
+author: "LIANG YAO"
+date: '26 Nov 2023'
+date-modified: "`r Sys.Date()`"
+execute: 
+  warning: false
+  echo: true
+  eval: true
+format: 
+  html: 
+    code-fold: true
+    code-summary: "Show the code"
+---
+
+# **Regionalisation of Multivariate Water Point Attributes with Non-spatially Constrained and Spatially Constrained Clustering Methods**
+
+## **Setting the Scene**
+
+According to [The World Bank](https://blogs.worldbank.org/transport/smart-mobility-it-time-re-think-urban-mobility), urban mobility was traditionally about \"moving people from one location to another location within or between urban areas\". This notion was based on two principles: people needed to access housing, jobs and other urban services such as education and entertainment, and they displayed a preference for motorised mobility due to its cost efficiency.
+
+But in recent years, there has been a shift in these perspectives in the minds of Transit Agencies and local governments who now recognise that online services limit a person\'s need for transport.
+
+Today, urban mobility is no longer just about moving people around by motorized vehicles. What people really need is the accessibility to various urban services. Numerous examples from different cities have demonstrated that better accessibility doesn\'t have to be achieved by generating motorized traffic, particularly by private vehicles.
+
+## **Objectives**
+
+In this take-home exercise you are required to regionalise Nigeria by using, but not limited to the following measures:
+
+-   Total number of functional water points
+
+-   Total number of nonfunctional water points
+
+-   Percentage of functional water points
+
+-   Percentage of non-functional water points
+
+-   Percentage of main water point technology (i.e. Hand Pump)
+
+-   Percentage of usage capacity (i.e. \< 1000, \>=1000)
+
+-   Percentage of rural water points
+
+## **The Data**
+
+### **Apstial data**
+
+For the purpose of this assignment, data from [WPdx Global Data Repositories](https://www.waterpointdata.org/access-data/) will be used. There are two versions of the data. They are: WPdx-Basic and WPdx+. You are required to use WPdx+ data set.
+
+```{r}
+#| eval: false
+wpdx = read_csv("data/aspatial/Water_Point_Data_Exchange_-_Plus__WPdx__.csv")
+```
+
+### **Geospatial data**
+
+Nigeria Level-2 Administrative Boundary (also known as Local Government Area) polygon features GIS data will be used in this take-home exercise. The data can be downloaded either from The [Humanitarian Data Exchange](https://data.humdata.org/) portal or [geoBoundaries](https://www.geoboundaries.org/).
+
+```{r}
+#| eval: false
+negeria = st_read(dsn = "data/geospatial",
+                   layer = "geoBoundaries-NGA-ADM2")  %>% st_transform(crs = 3414)
+```
+
+## **The Task**
+
+The specific tasks of this take-home exercise are as follows:
+
+-   Using appropriate sf method, import the shapefile into R and save it in a simple feature data frame format. Note that there are three Projected Coordinate Systems of Nigeria, they are: EPSG: 26391, 26392, and 26303. You can use any one of them.
+
+-   Using appropriate tidyr and dplyr methods, derive the proportion of functional and non-functional water point at LGA level (i.e. ADM2).
+
+-   Combining the geospatial and aspatial data frame into simple feature data frame.
+
+-   Delineating water point measures functional regions by using conventional hierarchical clustering.
+
+-   Delineating water point measures functional regions by using spatially constrained clustering algorithms.
+
+### **Thematic Mapping**
+
+-   Plot to show the water points measures derived by using appropriate statistical graphics and choropleth mapping technique.
+
+### **Analytical Mapping**
+
+-   Plot functional regions delineated by using both non-spatially constrained and spatially constrained clustering algorithms.

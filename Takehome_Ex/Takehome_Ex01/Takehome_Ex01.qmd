@@ -25,6 +25,47 @@ In real-world practices, the use of these massive locational aware data, however
 
 Exploratory Spatial Data Analysis (ESDA) hold tremendous potential to address complex problems facing society. In this study, you are tasked to apply appropriate Local Indicators of Spatial Association (GLISA) and Emerging Hot Spot Analysis (EHSA) to undercover the spatial and spatio-temporal mobility patterns of public bus passengers in Singapore.
 
+## **The Data**
+
+### **Aspatial data**
+
+For the purpose of this take-home exercise, *Passenger Volume by Origin Destination Bus Stops* downloaded from [LTA DataMall](https://www.waterpointdata.org/access-data/) will be used.
+
+Import the passenger volume by origin destination bus stops data.
+
+```{r}
+#| eval: false
+odbus = read_csv("/Users/SMU/liangyao2023/ISSS624/data/aspatial/origin_destination_bus_202308.csv")
+```
+
+Change data format for further wrangling.
+
+```{r}
+#| eval: false
+odbus$ORIGIN_PT_CODE = as.factor(odbus$ORIGIN_PT_CODE)
+odbus$DESTINATION_PT_CODE = as.factor(odbus$DESTINATION_PT_CODE)
+```
+
+### **Geospatial data**
+
+Two geospatial data will be used in this study, they are:
+
+-   *Bus Stop Location* from LTA DataMall. It provides information about all the bus stops currently being serviced by buses, including the bus stop code (identifier) and location coordinates.
+
+```{r}
+#| eval: false
+busstop = st_read(dsn = "data/geospatial/BusStopLocation_Jul2023",
+                   layer = "BusStop")  %>% st_transform(crs = 3414)
+```
+
+-   *hexagon*, a [hexagon](https://desktop.arcgis.com/en/arcmap/latest/tools/spatial-statistics-toolbox/h-whyhexagons.htm) layer of 250m is provided to replace the relative coarse and irregular Master Plan 2019 Planning Sub-zone GIS data set of URA.
+
+```{r}
+#| eval: false
+hexagon = st_read(dsn = "data/geospatial/hexagon",
+                   layer = "hexagon")  %>% st_transform(crs = 3414)
+```
+
 ## **The Task**
 
 The specific tasks of this take-home exercise are as follows:
@@ -61,17 +102,3 @@ With reference to the passenger trips by origin at the hexagon level for the fou
 -   Prepared EHSA maps of the Gi\* values of the passenger trips by origin at the hexagon level. The maps should only display the significant (i.e. p-value \< 0.05).
 
 -   With reference to the EHSA maps and data visualisation prepared, describe the spatial patterns reveled. (not more than 250 words per cluster).
-
-## **The Data**
-
-### **Apstial data**
-
-For the purpose of this take-home exercise, *Passenger Volume by Origin Destination Bus Stops* downloaded from [LTA DataMall](https://www.waterpointdata.org/access-data/) will be used.
-
-### **Geospatial data**
-
-Two geospatial data will be used in this study, they are:
-
--   *Bus Stop Location* from LTA DataMall. It provides information about all the bus stops currently being serviced by buses, including the bus stop code (identifier) and location coordinates.
-
--   *hexagon*, a [hexagon](https://desktop.arcgis.com/en/arcmap/latest/tools/spatial-statistics-toolbox/h-whyhexagons.htm) layer of 250m is provided to replace the relative coarse and irregular Master Plan 2019 Planning Sub-zone GIS data set of URA.
