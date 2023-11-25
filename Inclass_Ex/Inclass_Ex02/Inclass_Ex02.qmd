@@ -1,5 +1,5 @@
 ---
-title: "In Class Exercise 2"
+title: "Inclass_Ex02"
 author: "LIANG YAO"
 date: '25 Nov 2023'
 date-modified: "`r Sys.Date()`"
@@ -13,9 +13,9 @@ format:
     code-summary: "Show the code"
 ---
 
-## 1 Data Preparation
+## **1 Data Preparation**
 
-### 1.1 Get ready
+### **1.1 Get ready**
 
 In this exercise, a new [sfdep](https://sfdep.josiahparry.com/) package will be sused.
 
@@ -31,92 +31,90 @@ In this exercise, a new [sfdep](https://sfdep.josiahparry.com/) package will be 
 pacman::p_load(tmap, sf, sfdep, tidyverse, knitr, plotly)
 ```
 
-### 1.2 Importing the hunan Data
+### **1.2 Importing the hunan Data**
 
 Import the Hunan GDPPC data.
 
 ```{r}
-#| eval: false
 hunan_2012 = read_csv("data/aspatial/Hunan_2012.csv")
 ```
 
-### 1.3 Geospatial Data
+### **1.3 Geospatial Data**
 
 Use sf package to read geospatial data.
 
 ```{r}
-#| eval: false
 hunan = st_read(dsn = "data/geospatial",
                    layer = "Hunan")
 ```
 
-### 1.4 Wrangling Data
+### **1.4 Wrangling Data**
 
 ```{r}
-#hunan_data = left_join(hunan, hunan_2012, by = join_by(County)) %>%
-#  select(1:4, 7, 15)
+hunan_data = left_join(hunan, hunan_2012, by = join_by(County)) %>%
+  select(1:4, 7, 15)
 ```
 
 ::: callout-notice
 Since both tables got 88 observations, in order to ensure retaining all geospatial properties, left join to geo file.
 
-Here the 'County' column is the common column in both table, actually no need to explicitly identify the join_by, but here I would like to leave it there for clarification.
+Here the \'County\' column is the common column in both table, actually no need to explicitly identify the join_by, but here I would like to leave it there for clarification.
 :::
 
-#### 1.4.1 Deriving contiguity weights: Queen's Method.
+#### **1.4.1 Deriving contiguity weights: Queen\'s Method.**
 
 ```{r}
-#wm_q <- hunan_data %>%
-#  mutate(nb = st_contiguity(geometry),
-#         wt = st_weights(nb, style = 'W'),  
-#         .before = 1)  # to put the weight column at the most left.
+wm_q <- hunan_data %>%
+  mutate(nb = st_contiguity(geometry),
+         wt = st_weights(nb, style = 'W'),  
+         .before = 1)  # to put the weight column at the most left.
 ```
 
-## 2 Computing local Moron's I
+## **2 Computing local Moron\'s I**
 
 ```{r}
-#lisa <- wm_q %>%
-#  mutate(local_moran = local_moran(GDPPC, nb, wt, nsim = 99),
-#         .before = 1) %>%
-#  unnest(local_moran)
+lisa <- wm_q %>%
+  mutate(local_moran = local_moran(GDPPC, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
 ```
 
-## 3 Time series analysis
+## **3 Time series analysis**
 
 ```{r}
 GDPPC = read_csv("data/aspatial/Hunan_GDPPC.csv")
 ```
 
-### 3.1 Data Wranggling
+### **3.1 Data Wranggling**
 
-#### 3.1.1 Creating a time series cube
+#### **3.1.1 Creating a time series cube**
 
 ```{r}
-#GDPPC_st <- spacetime(GDPPC, hunan, 
-#                      .loc_col = "County", .time_col = "Year")
+GDPPC_st <- spacetime(GDPPC, hunan, 
+                      .loc_col = "County", .time_col = "Year")
 ```
 
 Verifying space-time cube object.
 
 ```{r}
-#is_spacetime_cube(GDPPC_st)
+is_spacetime_cube(GDPPC_st)
 ```
 
 ```{r}
-#GDPPC_nb <- GDPPC_st %>%
-#  activate("geometry") %>%
-#  mutate(nb = include_self(st_contiguity(geometry)),
-#         wt = st_inverse_distance(nb, geometry, scale = 1, alpha = 1),
-#         .before = 1) %>%
-#  set_nbs("nb") %>%
-#  set_wts("wt")
+GDPPC_nb <- GDPPC_st %>%
+  activate("geometry") %>%
+  mutate(nb = include_self(st_contiguity(geometry)),
+         wt = st_inverse_distance(nb, geometry, scale = 1, alpha = 1),
+         .before = 1) %>%
+  set_nbs("nb") %>%
+  set_wts("wt")
 ```
 
-### 3.2 Computing Gi\*
+### **3.2 Computing Gi\***
 
 ```{r}
-#gi_stars <- GDPPC_nb %>%
-#  group_by(Year) %>%
-#  mutate(gi_star = local_gstar_perm(GDPPC, nb, wt)) %>%
-#  unnest(gi_star)
+gi_stars <- GDPPC_nb %>%
+  group_by(Year) %>%
+  mutate(gi_star = local_gstar_perm(GDPPC, nb, wt)) %>%
+  unnest(gi_star)
 ```

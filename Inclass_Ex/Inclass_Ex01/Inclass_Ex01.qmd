@@ -1,5 +1,5 @@
 ---
-title: "In Class Exercise 1"
+title: "Inclass_Ex01"
 author: "LIANG YAO"
 date: '20 Nov 2023'
 date-modified: "`r Sys.Date()`"
@@ -13,7 +13,7 @@ format:
     code-summary: "Show the code"
 ---
 
-## 1 Data Acquisition
+## **1 Data Acquisition**
 
 SSS624 Applied Geospatial Analytics will be conducted using case study approach. This run the use case is Urban Mobility analysis by using passenger volume by origin-destination bus stops. To get ready for the excercise, you are required to do the following as soon as possible:
 
@@ -25,35 +25,35 @@ SSS624 Applied Geospatial Analytics will be conducted using case study approach.
 
 -   Once you received the API access code, read Section 1 of API Document and follow the instruction provided to download the data sets. You are required to download last three months data (August, September and October).
 
-## 2 Data Preparation
+## **2 Data Preparation**
 
-### 2.1 Get ready
+### **2.1 Get ready**
 
 ```{r}
 pacman::p_load(tmap, sf, tidyverse, knitr, h3jsr)
 ```
 
-### 2.2 Importing the OD Data
+### **2.2 Importing the OD Data**
 
 Import the passenger volume by origin destination bus stops data.
 
 ```{r}
-#| eval: false
 odbus <- read_csv("./data/aspatial/origin_destination_bus_202308.csv") %>%
   mutate(ORIGIN_PT_CODE = as.factor(ORIGIN_PT_CODE),
          DESTINATION_PT_CODE = as.factor(DESTINATION_PT_CODE))
 ```
 
+Check the data.
+
 ```{r}
-# glimpse(odbus)
+glimpse(odbus)
 ```
 
-### 2.3 Extracting Data
+### **2.3 Extracting Data**
 
-Extract passenger volume data between 7-9 o'clock during weekdays.
+Extract passenger volume data between 7-9 o\'clock during weekdays.
 
 ```{r}
-#| eval: false
 origin7_9 <- odbus %>%
   filter(DAY_TYPE == "WEEKDAY") %>%
   filter(TIME_PER_HOUR >= 7 &
@@ -65,84 +65,102 @@ origin7_9 <- odbus %>%
 Save the output in rds format
 
 ```{r}
-# write_rds(origin7_9, "./data/rds/origin7_9.rds")
+write_rds(origin7_9, "./data/rds/origin7_9.rds")
 ```
+
+Can extract data from saved file again.
 
 ```{r}
 # read from saved file.
 # origin7_9 <- read_rds("./data/rds/origin7_9.rds")
 ```
 
-## 3 Working with GeoSpatial Data
+## **3 Working with GeoSpatial Data**
 
-### 3.1 Importing Data
+### **3.1 Importing Data**
 
 Use sf package to read master plan subzone data and bus stop location data.
 
 ```{r}
-#| eval: false
 mpsz <- st_read(dsn = "./data/geospatial",
                    layer = "MPSZ-2019") %>% st_transform(crs = 3414)
 ```
 
 ```{r}
-#| eval: false
 busstop <- st_read(dsn = "./data/geospatial",
                    layer = "BusStop")  %>% st_transform(crs = 3414)
 ```
 
-::: callout-notice
-Here we use "st_transform(crs = 3414)" to change the coordinate from decimal degree to meters.
+::: callout-tip
+Here we use \"st_transform(crs = 3414)\" to change the coordinate from decimal degree to meters.
 :::
 
-### 3.2 Wrangling Data
+### **3.2 Wrangling Data**
 
 Combine the bus stop location with the Singapore subzone map.
 
 ```{r}
-#busstop_mpsz <- st_intersection(busstop, mpsz) %>%
-#  select(BUS_STOP_N, SUBZONE_C) %>%
-#  st_drop_geometry()
+busstop_mpsz <- st_intersection(busstop, mpsz) %>%
+  select(BUS_STOP_N, SUBZONE_C) %>%
+  st_drop_geometry()
 ```
 
-::: callout-notice
 -   `st_intersection()` is used to perform point and polygon overly and the output will be in point sf object.
 
 -   `select()` of dplyr package is then use to retain only BUS_STOP_N and SUBZONE_C in the busstop_mpsz sf data frame.
 
 -   five bus stops are excluded in the resultant data frame because they are outside of Singapore boundary.
-:::
 
 ```{r}
-# glimpse(busstop_mpsz)
+glimpse(busstop_mpsz)
 ```
 
 Next, we are going to append the planning subzone code from busstop_mpsz data frame onto odbus7_9 data frame.
 
 ```{r}
-#origin_data <- left_join(origin7_9 , busstop_mpsz,
-#            by = c("ORIGIN_PT_CODE" = "BUS_STOP_N")) %>%
-#  rename(ORIGIN_BS = ORIGIN_PT_CODE,
-#         ORIGIN_SZ = SUBZONE_C)
+origin_data <- left_join(origin7_9 , busstop_mpsz,
+            by = c("ORIGIN_PT_CODE" = "BUS_STOP_N")) %>%
+  rename(ORIGIN_BS = ORIGIN_PT_CODE,
+         ORIGIN_SZ = SUBZONE_C)
 ```
 
 Before continue, it is a good practice for us to check for duplicating records.
 
 ```{r}
-#duplicate <- origin_data %>%
-#  group_by_all() %>%
-#  filter(n()>1) %>%
-#  ungroup()
+duplicate <- origin_data %>%
+  group_by_all() %>%
+  filter(n()>1) %>%
+  ungroup()
 ```
 
 It will be a good practice to confirm if the duplicating records issue has been addressed fully.
 
 ```{r}
-#mpsz_origtrip <- left_join(mpsz, 
-#                           origin_data,
-#                           by = c("SUBZONE_C" = "ORIGIN_SZ"))
+mpsz_origtrip <- left_join(mpsz, 
+                           origin_data,
+                           by = c("SUBZONE_C" = "ORIGIN_SZ"))
 ```
 
-### 3.3 Choropleth Visualization
+### **3.3 Choropleth Visualization**
 
 Using the steps you had learned, prepare a choropleth map showing the distribution of passenger trips at planning sub-zone level.
+
+```{r}
+tm_shape(mpsz_origtrip)+
+  tm_fill("TRIPS", 
+          style = "quantile", 
+          palette = "Blues",
+          title = "Passenger trips") +
+  tm_layout(main.title = "Passenger trips generated at planning sub-zone level",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", size = 2) +
+  tm_scale_bar() +
+  tm_grid(alpha =0.2) +
+  tm_credits("Source: Planning Sub-zone boundary from URA\n and Passenger trips data from LTA", 
+             position = c("left", "bottom"))
+```
