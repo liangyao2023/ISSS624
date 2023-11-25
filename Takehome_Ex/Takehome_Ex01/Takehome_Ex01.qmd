@@ -35,15 +35,9 @@ Import the passenger volume by origin destination bus stops data.
 
 ```{r}
 #| eval: false
-odbus = read_csv("/Users/SMU/liangyao2023/ISSS624/data/aspatial/origin_destination_bus_202308.csv")
-```
-
-Change data format for further wrangling.
-
-```{r}
-#| eval: false
-odbus$ORIGIN_PT_CODE = as.factor(odbus$ORIGIN_PT_CODE)
-odbus$DESTINATION_PT_CODE = as.factor(odbus$DESTINATION_PT_CODE)
+odbus = read_csv("./data/aspatial/origin_destination_bus_202308.csv")  %>%
+  mutate(ORIGIN_PT_CODE = as.factor(ORIGIN_PT_CODE),
+         DESTINATION_PT_CODE = as.factor(DESTINATION_PT_CODE))
 ```
 
 ### **Geospatial data**
@@ -54,7 +48,7 @@ Two geospatial data will be used in this study, they are:
 
 ```{r}
 #| eval: false
-busstop = st_read(dsn = "data/geospatial/BusStopLocation_Jul2023",
+busstop = st_read(dsn = "./data/geospatial/BusStopLocation_Jul2023",
                    layer = "BusStop")  %>% st_transform(crs = 3414)
 ```
 
@@ -62,7 +56,7 @@ busstop = st_read(dsn = "data/geospatial/BusStopLocation_Jul2023",
 
 ```{r}
 #| eval: false
-hexagon = st_read(dsn = "data/geospatial/hexagon",
+hexagon = st_read(dsn = "./data/geospatial/hexagon",
                    layer = "hexagon")  %>% st_transform(crs = 3414)
 ```
 
