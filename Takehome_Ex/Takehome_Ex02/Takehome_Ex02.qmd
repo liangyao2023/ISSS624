@@ -1,7 +1,7 @@
 ---
-title: "Take Home Exercise 2"
+title: "Takehome_Ex01"
 author: "LIANG YAO"
-date: '26 Nov 2023'
+date: '30 Nov 2023'
 date-modified: "`r Sys.Date()`"
 execute: 
   warning: false
@@ -15,15 +15,15 @@ format:
 
 # **Regionalisation of Multivariate Water Point Attributes with Non-spatially Constrained and Spatially Constrained Clustering Methods**
 
-## **Setting the Scene**
+## **1 Setting the Scene**
 
-According to [The World Bank](https://blogs.worldbank.org/transport/smart-mobility-it-time-re-think-urban-mobility), urban mobility was traditionally about \"moving people from one location to another location within or between urban areas\". This notion was based on two principles: people needed to access housing, jobs and other urban services such as education and entertainment, and they displayed a preference for motorised mobility due to its cost efficiency.
+According to [The World Bank](https://blogs.worldbank.org/transport/smart-mobility-it-time-re-think-urban-mobility), urban mobility was traditionally about "moving people from one location to another location within or between urban areas". This notion was based on two principles: people needed to access housing, jobs and other urban services such as education and entertainment, and they displayed a preference for motorised mobility due to its cost efficiency.
 
-But in recent years, there has been a shift in these perspectives in the minds of Transit Agencies and local governments who now recognise that online services limit a person\'s need for transport.
+But in recent years, there has been a shift in these perspectives in the minds of Transit Agencies and local governments who now recognise that online services limit a person's need for transport.
 
-Today, urban mobility is no longer just about moving people around by motorized vehicles. What people really need is the accessibility to various urban services. Numerous examples from different cities have demonstrated that better accessibility doesn\'t have to be achieved by generating motorized traffic, particularly by private vehicles.
+Today, urban mobility is no longer just about moving people around by motorized vehicles. What people really need is the accessibility to various urban services. Numerous examples from different cities have demonstrated that better accessibility doesn't have to be achieved by generating motorized traffic, particularly by private vehicles.
 
-## **Objectives**
+## **2 Objectives**
 
 In this take-home exercise you are required to regionalise Nigeria by using, but not limited to the following measures:
 
@@ -41,29 +41,38 @@ In this take-home exercise you are required to regionalise Nigeria by using, but
 
 -   Percentage of rural water points
 
-## **The Data**
+## **3 The Data**
 
-### **Apstial data**
+First of all, load needing packages.
+
+```{r}
+pacman::p_load(sf, spdep, tmap, tidyverse, knitr, sfdep, plotly)
+```
+
+### **3.1 Aspatial data**
 
 For the purpose of this assignment, data from [WPdx Global Data Repositories](https://www.waterpointdata.org/access-data/) will be used. There are two versions of the data. They are: WPdx-Basic and WPdx+. You are required to use WPdx+ data set.
 
+Import the water point data.
+
 ```{r}
-#| eval: false
-wpdx = read_csv("data/aspatial/Water_Point_Data_Exchange_-_Plus__WPdx__.csv")
+water_point = read_csv("./data/aspatial/Water_Point_Data_Exchange_-_Plus__WPdx__.csv") 
 ```
 
-### **Geospatial data**
+### **3.2 Geospatial data**
 
 Nigeria Level-2 Administrative Boundary (also known as Local Government Area) polygon features GIS data will be used in this take-home exercise. The data can be downloaded either from The [Humanitarian Data Exchange](https://data.humdata.org/) portal or [geoBoundaries](https://www.geoboundaries.org/).
 
+Import Nigeria Level-2 Administrative Boundary data.
+
 ```{r}
-#| eval: false
-negeria = st_read(dsn = "data/geospatial",
-                   layer = "geoBoundaries-NGA-ADM2")  %>% st_transform(crs = 3414)
+boundary = st_read(dsn = "./data/geospatial",
+                   layer = "geoBoundaries-NGA-ADM2")
 ```
 
-## **The Task**
+## **4 The Task**
 
+\
 The specific tasks of this take-home exercise are as follows:
 
 -   Using appropriate sf method, import the shapefile into R and save it in a simple feature data frame format. Note that there are three Projected Coordinate Systems of Nigeria, they are: EPSG: 26391, 26392, and 26303. You can use any one of them.
@@ -76,10 +85,12 @@ The specific tasks of this take-home exercise are as follows:
 
 -   Delineating water point measures functional regions by using spatially constrained clustering algorithms.
 
-### **Thematic Mapping**
+### **4.1 Thematic mapping**
 
--   Plot to show the water points measures derived by using appropriate statistical graphics and choropleth mapping technique.
+Plot to show the water points measures derived by using appropriate statistical graphics and choropleth mapping technique.
 
-### **Analytical Mapping**
+#### 4.1.1 Extracting Data
 
--   Plot functional regions delineated by using both non-spatially constrained and spatially constrained clustering algorithms.
+### **4.2 Analytic mapping**
+
+Plot functional regions delineated by using both non-spatially constrained and spatially constrained clustering algorithms.

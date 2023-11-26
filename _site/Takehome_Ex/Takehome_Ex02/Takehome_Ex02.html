@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="LIANG YAO">
-<meta name="dcterms.date" content="2023-11-26">
+<meta name="dcterms.date" content="2023-11-30">
 
-<title>ISSS624 Geospatial Analytics - Take Home Exercise 2</title>
+<title>ISSS624 Geospatial Analytics - Takehome_Ex01</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -200,17 +200,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#regionalisation-of-multivariate-water-point-attributes-with-non-spatially-constrained-and-spatially-constrained-clustering-methods" id="toc-regionalisation-of-multivariate-water-point-attributes-with-non-spatially-constrained-and-spatially-constrained-clustering-methods" class="nav-link active" data-scroll-target="#regionalisation-of-multivariate-water-point-attributes-with-non-spatially-constrained-and-spatially-constrained-clustering-methods"><strong>Regionalisation of Multivariate Water Point Attributes with Non-spatially Constrained and Spatially Constrained Clustering Methods</strong></a>
   <ul class="collapse">
-  <li><a href="#setting-the-scene" id="toc-setting-the-scene" class="nav-link" data-scroll-target="#setting-the-scene"><strong>Setting the Scene</strong></a></li>
-  <li><a href="#objectives" id="toc-objectives" class="nav-link" data-scroll-target="#objectives"><strong>Objectives</strong></a></li>
-  <li><a href="#the-data" id="toc-the-data" class="nav-link" data-scroll-target="#the-data"><strong>The Data</strong></a>
+  <li><a href="#setting-the-scene" id="toc-setting-the-scene" class="nav-link" data-scroll-target="#setting-the-scene"><strong>1 Setting the Scene</strong></a></li>
+  <li><a href="#objectives" id="toc-objectives" class="nav-link" data-scroll-target="#objectives"><strong>2 Objectives</strong></a></li>
+  <li><a href="#the-data" id="toc-the-data" class="nav-link" data-scroll-target="#the-data"><strong>3 The Data</strong></a>
   <ul class="collapse">
-  <li><a href="#apstial-data" id="toc-apstial-data" class="nav-link" data-scroll-target="#apstial-data"><strong>Apstial data</strong></a></li>
-  <li><a href="#geospatial-data" id="toc-geospatial-data" class="nav-link" data-scroll-target="#geospatial-data"><strong>Geospatial data</strong></a></li>
+  <li><a href="#aspatial-data" id="toc-aspatial-data" class="nav-link" data-scroll-target="#aspatial-data"><strong>3.1 Aspatial data</strong></a></li>
+  <li><a href="#geospatial-data" id="toc-geospatial-data" class="nav-link" data-scroll-target="#geospatial-data"><strong>3.2 Geospatial data</strong></a></li>
   </ul></li>
-  <li><a href="#the-task" id="toc-the-task" class="nav-link" data-scroll-target="#the-task"><strong>The Task</strong></a>
+  <li><a href="#the-task" id="toc-the-task" class="nav-link" data-scroll-target="#the-task"><strong>4 The Task</strong></a>
   <ul class="collapse">
-  <li><a href="#thematic-mapping" id="toc-thematic-mapping" class="nav-link" data-scroll-target="#thematic-mapping"><strong>Thematic Mapping</strong></a></li>
-  <li><a href="#analytical-mapping" id="toc-analytical-mapping" class="nav-link" data-scroll-target="#analytical-mapping"><strong>Analytical Mapping</strong></a></li>
+  <li><a href="#thematic-mapping" id="toc-thematic-mapping" class="nav-link" data-scroll-target="#thematic-mapping"><strong>4.1 Thematic mapping</strong></a></li>
+  <li><a href="#analytic-mapping" id="toc-analytic-mapping" class="nav-link" data-scroll-target="#analytic-mapping"><strong>4.2 Analytic mapping</strong></a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -221,7 +221,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Take Home Exercise 2</h1>
+<h1 class="title">Takehome_Ex01</h1>
 </div>
 
 
@@ -238,14 +238,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 26, 2023</p>
+      <p class="date">November 30, 2023</p>
     </div>
   </div>
   
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">November 25, 2023</p>
+      <p class="date-modified">November 26, 2023</p>
     </div>
   </div>
     
@@ -257,13 +257,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="regionalisation-of-multivariate-water-point-attributes-with-non-spatially-constrained-and-spatially-constrained-clustering-methods" class="level1">
 <h1><strong>Regionalisation of Multivariate Water Point Attributes with Non-spatially Constrained and Spatially Constrained Clustering Methods</strong></h1>
 <section id="setting-the-scene" class="level2">
-<h2 class="anchored" data-anchor-id="setting-the-scene"><strong>Setting the Scene</strong></h2>
-<p>According to <a href="https://blogs.worldbank.org/transport/smart-mobility-it-time-re-think-urban-mobility">The World Bank</a>, urban mobility was traditionally about "moving people from one location to another location within or between urban areas". This notion was based on two principles: people needed to access housing, jobs and other urban services such as education and entertainment, and they displayed a preference for motorised mobility due to its cost efficiency.</p>
-<p>But in recent years, there has been a shift in these perspectives in the minds of Transit Agencies and local governments who now recognise that online services limit a person's need for transport.</p>
-<p>Today, urban mobility is no longer just about moving people around by motorized vehicles. What people really need is the accessibility to various urban services. Numerous examples from different cities have demonstrated that better accessibility doesn't have to be achieved by generating motorized traffic, particularly by private vehicles.</p>
+<h2 class="anchored" data-anchor-id="setting-the-scene"><strong>1 Setting the Scene</strong></h2>
+<p>According to <a href="https://blogs.worldbank.org/transport/smart-mobility-it-time-re-think-urban-mobility">The World Bank</a>, urban mobility was traditionally about “moving people from one location to another location within or between urban areas”. This notion was based on two principles: people needed to access housing, jobs and other urban services such as education and entertainment, and they displayed a preference for motorised mobility due to its cost efficiency.</p>
+<p>But in recent years, there has been a shift in these perspectives in the minds of Transit Agencies and local governments who now recognise that online services limit a person’s need for transport.</p>
+<p>Today, urban mobility is no longer just about moving people around by motorized vehicles. What people really need is the accessibility to various urban services. Numerous examples from different cities have demonstrated that better accessibility doesn’t have to be achieved by generating motorized traffic, particularly by private vehicles.</p>
 </section>
 <section id="objectives" class="level2">
-<h2 class="anchored" data-anchor-id="objectives"><strong>Objectives</strong></h2>
+<h2 class="anchored" data-anchor-id="objectives"><strong>2 Objectives</strong></h2>
 <p>In this take-home exercise you are required to regionalise Nigeria by using, but not limited to the following measures:</p>
 <ul>
 <li><p>Total number of functional water points</p></li>
@@ -276,32 +276,52 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
 </section>
 <section id="the-data" class="level2">
-<h2 class="anchored" data-anchor-id="the-data"><strong>The Data</strong></h2>
-<section id="apstial-data" class="level3">
-<h3 class="anchored" data-anchor-id="apstial-data"><strong>Apstial data</strong></h3>
-<p>For the purpose of this assignment, data from <a href="https://www.waterpointdata.org/access-data/">WPdx Global Data Repositories</a> will be used. There are two versions of the data. They are: WPdx-Basic and WPdx+. You are required to use WPdx+ data set.</p>
+<h2 class="anchored" data-anchor-id="the-data"><strong>3 The Data</strong></h2>
+<p>First of all, load needing packages.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>wpdx <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="st">"data/aspatial/Water_Point_Data_Exchange_-_Plus__WPdx__.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, spdep, tmap, tidyverse, knitr, sfdep, plotly)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="aspatial-data" class="level3">
+<h3 class="anchored" data-anchor-id="aspatial-data"><strong>3.1 Aspatial data</strong></h3>
+<p>For the purpose of this assignment, data from <a href="https://www.waterpointdata.org/access-data/">WPdx Global Data Repositories</a> will be used. There are two versions of the data. They are: WPdx-Basic and WPdx+. You are required to use WPdx+ data set.</p>
+<p>Import the water point data.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>water_point <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="st">"./data/aspatial/Water_Point_Data_Exchange_-_Plus__WPdx__.csv"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
 <section id="geospatial-data" class="level3">
-<h3 class="anchored" data-anchor-id="geospatial-data"><strong>Geospatial data</strong></h3>
+<h3 class="anchored" data-anchor-id="geospatial-data"><strong>3.2 Geospatial data</strong></h3>
 <p>Nigeria Level-2 Administrative Boundary (also known as Local Government Area) polygon features GIS data will be used in this take-home exercise. The data can be downloaded either from The <a href="https://data.humdata.org/">Humanitarian Data Exchange</a> portal or <a href="https://www.geoboundaries.org/">geoBoundaries</a>.</p>
+<p>Import Nigeria Level-2 Administrative Boundary data.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>negeria <span class="ot">=</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>,</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">layer =</span> <span class="st">"geoBoundaries-NGA-ADM2"</span>)  <span class="sc">%&gt;%</span> <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>boundary <span class="ot">=</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"./data/geospatial"</span>,</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">layer =</span> <span class="st">"geoBoundaries-NGA-ADM2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `geoBoundaries-NGA-ADM2' from data source 
+  `/Users/SMU/liangyao2023/ISSS624/Takehome_Ex/Takehome_Ex02/data/geospatial' 
+  using driver `ESRI Shapefile'
+Simple feature collection with 774 features and 5 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 2.692613 ymin: 4.270204 xmax: 14.67797 ymax: 13.88571
+Geodetic CRS:  WGS 84</code></pre>
+</div>
 </div>
 </section>
 </section>
 <section id="the-task" class="level2">
-<h2 class="anchored" data-anchor-id="the-task"><strong>The Task</strong></h2>
-<p>The specific tasks of this take-home exercise are as follows:</p>
+<h2 class="anchored" data-anchor-id="the-task"><strong>4 The Task</strong></h2>
+<p><br>
+The specific tasks of this take-home exercise are as follows:</p>
 <ul>
 <li><p>Using appropriate sf method, import the shapefile into R and save it in a simple feature data frame format. Note that there are three Projected Coordinate Systems of Nigeria, they are: EPSG: 26391, 26392, and 26303. You can use any one of them.</p></li>
 <li><p>Using appropriate tidyr and dplyr methods, derive the proportion of functional and non-functional water point at LGA level (i.e.&nbsp;ADM2).</p></li>
@@ -310,16 +330,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p>Delineating water point measures functional regions by using spatially constrained clustering algorithms.</p></li>
 </ul>
 <section id="thematic-mapping" class="level3">
-<h3 class="anchored" data-anchor-id="thematic-mapping"><strong>Thematic Mapping</strong></h3>
-<ul>
-<li>Plot to show the water points measures derived by using appropriate statistical graphics and choropleth mapping technique.</li>
-</ul>
+<h3 class="anchored" data-anchor-id="thematic-mapping"><strong>4.1 Thematic mapping</strong></h3>
+<p>Plot to show the water points measures derived by using appropriate statistical graphics and choropleth mapping technique.</p>
+<section id="extracting-data" class="level4">
+<h4 class="anchored" data-anchor-id="extracting-data">4.1.1 Extracting Data</h4>
 </section>
-<section id="analytical-mapping" class="level3">
-<h3 class="anchored" data-anchor-id="analytical-mapping"><strong>Analytical Mapping</strong></h3>
-<ul>
-<li>Plot functional regions delineated by using both non-spatially constrained and spatially constrained clustering algorithms.</li>
-</ul>
+</section>
+<section id="analytic-mapping" class="level3">
+<h3 class="anchored" data-anchor-id="analytic-mapping"><strong>4.2 Analytic mapping</strong></h3>
+<p>Plot functional regions delineated by using both non-spatially constrained and spatially constrained clustering algorithms.</p>
 
 
 </section>
