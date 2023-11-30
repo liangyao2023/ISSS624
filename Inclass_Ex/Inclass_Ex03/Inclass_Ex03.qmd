@@ -1,0 +1,183 @@
+---
+title: "Inclass_Ex03"
+author: "LIANG YAO"
+date: '30 Nov 2023'
+date-modified: "`r Sys.Date()`"
+execute: 
+  warning: false
+  echo: true
+  eval: true
+format: 
+  html: 
+    code-fold: true
+    code-summary: "Show the code"
+---
+
+## **1 Overview**
+
+Spatial interaction represent the flow of people, material, or information between locations in geographical space. It encompasses everything from freight shipments, energy flows, and the global trade in rare antiquities, to flight schedules, rush hour woes, and pedestrian foot traffic.
+
+Each spatial interaction, as an analogy for a set of movements, is composed of a discrete origin/destination pair. Each pair can be represented as a cell in a matrix where rows are related to the locations (centroids) of origin, while columns are related to locations (centroids) of destination. Such a matrix is commonly known as an origin/destination matrix, or a spatial interaction matrix.
+
+In this hands-on exercise, you will learn how to build an OD matrix by using *Passenger Volume by Origin Destination Bus Stops* data set downloaded from LTA DataMall. By the end of this hands-on exercise, you will be able:
+
+-   to import and extract OD data for a selected time interval,
+
+-   to import and save geospatial data (i.e. bus stops and mpsz) into sf tibble data frame objects,
+
+-   to populate planning subzone code into bus stops sf tibble data frame,
+
+-   to construct desire lines geospatial data from the OD data, and
+
+-   to visualise passenger volume by origin and destination bus stops by using the desire lines data.
+
+## **2 Preparing Flow Data**
+
+### **2.1 Get ready**
+
+```{r}
+pacman::p_load(tmap, sf, DT, stplanr,
+               performance,
+               ggpubr, tidyverse)
+```
+
+### **2.2 Importing the OD Data**
+
+Import the passenger volume by origin destination bus stops data.
+
+```{r}
+odbus <- read_csv("./data/aspatial/origin_destination_bus_202310.csv") %>%
+  mutate(ORIGIN_PT_CODE = as.factor(ORIGIN_PT_CODE),
+         DESTINATION_PT_CODE = as.factor(DESTINATION_PT_CODE))
+```
+
+Check the data.
+
+```{r}
+glimpse(odbus)
+```
+
+### **2.3 Extracting Data**
+
+For the purpose of this exercise, we will extract commuting flows on weekday and between 6 and 9 o\'clock.
+
+```{r}
+odbus6_9 <- odbus %>%
+  filter(DAY_TYPE == "WEEKDAY") %>%
+  filter(TIME_PER_HOUR >= 6 &
+           TIME_PER_HOUR <= 9) %>%
+  group_by(ORIGIN_PT_CODE,
+           DESTINATION_PT_CODE) %>%
+  summarise(TRIPS = sum(TOTAL_TRIPS))
+```
+
+Save the output in rds format
+
+```{r}
+write_rds(odbus6_9, "./data/rds/odbus6_9.rds")
+```
+
+Can extract data from saved file again.
+
+```{r}
+# read from saved file.
+# odbus6_9 <- read_rds("chap15/data/rds/odbus6_9.rds")
+```
+
+## **3 Working with GeoSpatial Data**
+
+### **3.1 Importing Data**
+
+Use sf package to read master plan subzone data and bus stop location data.
+
+```{r}
+mpsz <- st_read(dsn = "./data/geospatial",
+                   layer = "MPSZ-2019") %>% st_transform(crs = 3414)
+```
+
+```{r}
+busstop <- st_read(dsn = "./data/geospatial",
+                   layer = "BusStop")  %>% st_transform(crs = 3414)
+```
+
+::: callout-tip
+Here we use "st_transform(crs = 3414)" to change the coordinate from decimal degree to meters.
+:::
+
+### **3.2 Wrangling Data**
+
+Combine the bus stop location with the Singapore subzone map.
+
+```{r}
+busstop_mpsz <- st_intersection(busstop, mpsz) %>%
+  select(BUS_STOP_N, SUBZONE_C) %>%
+  st_drop_geometry()
+```
+
+-   `st_intersection()` is used to perform point and polygon overly and the output will be in point sf object.
+
+-   `select()` of dplyr package is then use to retain only BUS_STOP_N and SUBZONE_C in the busstop_mpsz sf data frame.
+
+-   five bus stops are excluded in the resultant data frame because they are outside of Singapore boundary.
+
+```{r}
+glimpse(busstop_mpsz)
+```
+
+Next, we are going to append the planning subzone code from busstop_mpsz data frame onto odbus7_9 data frame.
+
+```{r}
+od_data <- left_join(odbus6_9 , busstop_mpsz,
+            by = c("ORIGIN_PT_CODE" = "BUS_STOP_N")) %>%
+  rename(ORIGIN_BS = ORIGIN_PT_CODE,
+         ORIGIN_SZ = SUBZONE_C,
+         DESTIN_BS = DESTINATION_PT_CODE)
+```
+
+Before continue, it is a good practice for us to check for duplicating records.
+
+```{r}
+od_data %>%
+  group_by_all() %>%
+  filter(n()>1) %>%
+  ungroup()
+```
+
+If duplicated records are found, the code chunk below will be used to retain the unique records.
+
+```{r}
+od_data <- unique(od_data)
+```
+
+Next, we will update od_data data frame cwith the planning subzone codes.
+
+```{r}
+od_data <- left_join(od_data , busstop_mpsz,
+            by = c("DESTIN_BS" = "BUS_STOP_N")) 
+```
+
+```{r}
+od_data <- unique(od_data)
+```
+
+```{r}
+od_data <- od_data %>%
+  rename(DESTIN_SZ = SUBZONE_C) %>%
+  drop_na() %>%
+  group_by(ORIGIN_SZ, DESTIN_SZ) %>%
+  summarise(MORNING_PEAK = sum(TRIPS))
+```
+
+It is time to save the output into an rds file format.
+
+```{r}
+write_rds(od_data, "./data/rds/od_data.rds")
+```
+
+### **3.3 Visualising Spatial Interaction**
+
+In this section, you will learn how to prepare a desire line by using **stplanr** package.
+
+```{r}
+
+```
