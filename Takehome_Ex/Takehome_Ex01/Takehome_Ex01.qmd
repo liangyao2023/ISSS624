@@ -1,5 +1,5 @@
 ---
-title: "Takehome_Ex01"
+title: "Take Home Exercise 1"
 author: "LIANG YAO"
 date: '25 Nov 2023'
 date-modified: "`r Sys.Date()`"
@@ -30,7 +30,7 @@ Exploratory Spatial Data Analysis (ESDA) hold tremendous potential to address co
 First of all, load needing packages.
 
 ```{r}
-pacman::p_load(sf, spdep, tmap, tidyverse, knitr, sfdep, plotly)
+pacman::p_load(sf, tmap, tidyverse, sfdep, Kendall)
 ```
 
 ### **3.1 Aspatial data**
@@ -116,6 +116,8 @@ peak_trips <- bind_rows(
   group_by(ORIGIN_PT_CODE) %>%
   summarise(TRIPS = sum(TOTAL_TRIPS)) %>%
   mutate(interval = "weekend_16_19"))
+
+glimpse(peak_trips)
 ```
 
 #### 4.1.2 Wrangling geospatial data
@@ -123,7 +125,7 @@ peak_trips <- bind_rows(
 First we need to combine bus stops and hexagon data.
 
 ```{r}
-busstop_hexagon <- st_intersection(busstop, hexagon) %>%
+busstop_hexagon <- st_intersection(hexagon, busstop) %>%
   select(BUS_STOP_N,id) %>%
   st_drop_geometry()
 ```
@@ -186,7 +188,7 @@ bustrip_hex <- left_join(hexagon, bus_trips, by = c("id" = "ORIGIN_SZ"))
 Now we can visualize the distribution of total bus trips.
 
 ```{r}
-#tmap_mode("view")
+tmap_mode("plot")
 tm_shape(bustrip_hex) +
   tm_fill("TRIPS", 
           style = "quantile", 
@@ -208,7 +210,7 @@ tm_shape(bustrip_hex) +
 4.1.3.2 Then, let's check out the distribution of peak time trips of 4 time intervals in total.
 
 ```{r}
-#tmap_mode("view")
+tmap_mode("plot")
 tm_shape(peaktrip_hex) +
   tm_fill("TRIPS", 
           style = "quantile", 
@@ -246,6 +248,8 @@ There's no obvious difference between the distribution of total bus trips and pe
       summarise(TRIPS = sum(TRIPS)) %>% 
       mutate(daily_trips = 
                ifelse(grepl("weekday",interval), ceiling(TRIPS/22), ceiling(TRIPS/9)))
+
+    glimpse(peak_trips_interval)
     ```
 
     ::: callout-important
@@ -281,7 +285,7 @@ There's no obvious difference between the distribution of total bus trips and pe
     1\) Visualize total trip distribution for each time intervals.
 
     ```{r}
-    #tmap_mode("view")
+    tmap_mode("plot")
     tm_shape(interval_totaltrip_hex)+ 
       tm_polygons(c("weekday_6_9","weekday_17_20","weekend_11_14","weekend_16_19"),
               style = "quantile", 
@@ -326,67 +330,148 @@ With reference to the passenger trips by origin at the hexagon level for the fou
 
 -   With reference to the EHSA maps and data visualisation prepared, describe the spatial patterns reveled. (not more than 250 words per cluster).
 
-#### 4.2.1 Perform Mann-Kendall Test
+#### 4.2.1 Calculating Gi\* values
 
 First we need to extract the passenger trips data during 4 peak time intervals from odbus.
 
 ```{r}
-weekday_am_f <- odbus %>%
+peak_trips_hour <- bind_rows(
+  left_join(busstop_hexagon, 
+  odbus %>%
   filter(DAY_TYPE == "WEEKDAY") %>%
   filter(TIME_PER_HOUR >= 6 &
            TIME_PER_HOUR <= 9) %>% 
-  group_by(TIME_PER_HOUR, ORIGIN_PT_CODE) %>%
+  group_by(ORIGIN_PT_CODE,TIME_PER_HOUR) %>%
   summarise(TRIPS = sum(TOTAL_TRIPS)) %>%
-  rename('BUS_STOP_N'='ORIGIN_PT_CODE') %>%
-  left_join(busstop_hexagon, by = 'BUS_STOP_N') %>% 
-  group_by(TIME_PER_HOUR, id) %>%
-  summarise(TRIPS = sum(TRIPS))
-
-weekday_pm_f <-  odbus %>%
+  rename('BUS_STOP_N'='ORIGIN_PT_CODE'), by = 'BUS_STOP_N'),
+  left_join(busstop_hexagon, 
+  odbus %>%
   filter(DAY_TYPE == "WEEKDAY") %>%
   filter(TIME_PER_HOUR >= 17 &
            TIME_PER_HOUR <= 20) %>% 
-  group_by(TIME_PER_HOUR, ORIGIN_PT_CODE) %>%
+  group_by(ORIGIN_PT_CODE,TIME_PER_HOUR) %>%
   summarise(TRIPS = sum(TOTAL_TRIPS)) %>%
-  rename('BUS_STOP_N'='ORIGIN_PT_CODE') %>%
-  left_join(busstop_hexagon, by = 'BUS_STOP_N') %>% 
-  group_by(TIME_PER_HOUR, id) %>%
-  summarise(TRIPS = sum(TRIPS))
-
-weekend_am_f <-  odbus %>%
+  rename('BUS_STOP_N'='ORIGIN_PT_CODE'), by = 'BUS_STOP_N'),
+  left_join(busstop_hexagon, 
+  odbus %>%
   filter(DAY_TYPE == "WEEKENDS/HOLIDAY") %>%
   filter(TIME_PER_HOUR >= 11 &
            TIME_PER_HOUR <= 14) %>% 
-  group_by(TIME_PER_HOUR, ORIGIN_PT_CODE) %>%
+  group_by(ORIGIN_PT_CODE,TIME_PER_HOUR) %>%
   summarise(TRIPS = sum(TOTAL_TRIPS)) %>%
-  rename('BUS_STOP_N'='ORIGIN_PT_CODE') %>%
-  left_join(busstop_hexagon, by = 'BUS_STOP_N') %>% 
-  group_by(TIME_PER_HOUR, id) %>%
-  summarise(TRIPS = sum(TRIPS))
-
-weekend_pm_f <-  odbus %>%
+  rename('BUS_STOP_N'='ORIGIN_PT_CODE'), by = 'BUS_STOP_N'),
+  left_join(busstop_hexagon, 
+  odbus %>%
   filter(DAY_TYPE == "WEEKENDS/HOLIDAY") %>%
   filter(TIME_PER_HOUR >= 16 &
            TIME_PER_HOUR <= 19) %>%
-  group_by(TIME_PER_HOUR, ORIGIN_PT_CODE) %>%
+  group_by(ORIGIN_PT_CODE,TIME_PER_HOUR) %>%
   summarise(TRIPS = sum(TOTAL_TRIPS)) %>%
-  rename('BUS_STOP_N'='ORIGIN_PT_CODE') %>%
-  left_join(busstop_hexagon, by = 'BUS_STOP_N') %>% 
-  group_by(TIME_PER_HOUR, id) %>%
-  summarise(TRIPS = sum(TRIPS))
+  rename('BUS_STOP_N'='ORIGIN_PT_CODE'), by = 'BUS_STOP_N'))%>% 
+  group_by(id,TIME_PER_HOUR) %>%
+  summarise(TRIPS = sum(TRIPS)) %>%
+  right_join(hexagon %>% select(id, geometry), by = "id")
 ```
 
-And then create an space-time cube for each time interval data.
+And then create an space-time cube for the per hour trip data.
 
 ```{r}
-weekday_am_st <- spacetime(weekday_am_f, 
+peak_trips_h_st <- spacetime(peak_trips_hour %>% ungroup(), 
                      hexagon,
                       .loc_col = "id",
-                      .time_col = "TIME_PER_HOUR")
+                      .time_col = "TIME_PER_HOUR") %>%
+  complete_spacetime_cube() %>%
+  mutate(TRIPS = replace_na(TRIPS,0))
 ```
+
+::: callout-notice
+Here since the Number of rows does not equal \`n time-periods x n locations, I used complete_spacetime_cube() to fill up the cube, rows with no trips would be NA.
+:::
 
 Before continue, we better make sure the peak_st is indeed an space-time cube object.
 
 ```{r}
-is_spacetime_cube(weekday_am_st)
+#| code-fold: false
+is_spacetime_cube(peak_trips_h_st)
+```
+
+Then we need to identify neighbors and to derive an inverse distance weights.
+
+```{r}
+peak_trips_h_nb <- peak_trips_h_st %>%
+  activate("geometry") %>%
+  mutate(nb = include_self(st_contiguity(geometry)),
+         wt = st_inverse_distance(nb, geometry,
+                                  scale = 1,
+                                  alpha = 1),
+         .before = 1) %>%
+  set_nbs("nb") %>%
+  set_wts("wt")
+
+print(head(peak_trips_h_nb, 5))
+```
+
+Next we can compute Gi\* values for each location base on the space-time cube.
+
+```{r}
+peak_trips_h_gi <- peak_trips_h_nb %>%
+  mutate(TRIPS = replace_na(TRIPS,0)) %>%
+  mutate(gi_star = local_gstar_perm(TRIPS, nb, wt)) %>% 
+  tidyr::unnest(gi_star)
+```
+
+#### 4.2.2 Perform Mann-Kendall Test
+
+-   From the Mann-Kendall test output, sl = 0 suggests there is a statistically significant trend, and tau all positive indicate increasing trends.
+
+```{r}
+peak_trips_h_gi %>%
+  group_by(TIME_PER_HOUR) %>%
+  summarise(mk = list(
+    unclass(
+      MannKendall(gi_star)))) %>%
+ unnest_wider(mk)
+```
+
+#### 4.2.3 Emerging Hotspot Analysis
+
+##### 4.2.3.1 Performing Emerging Hotspot analysis and save the result.
+
+```{r}
+ehsa <- emerging_hotspot_analysis(
+  x = peak_trips_h_st, 
+  .var = "TRIPS",
+  nsim = 20)
+```
+
+##### 4.2.3.2 Visualizing the distribution of EHSA classes.
+
+```{r}
+ggplot(data = ehsa,
+       aes(x = classification)) +
+  geom_bar()
+```
+
+##### 4.2.3.3 Visualizing geographic distribution of EHSA classes.
+
+Before plot, join ehsa data back with hexagon.
+
+```{r}
+hex_ehsa <- hexagon %>%
+  left_join(ehsa,
+            by = join_by(id == location))
+```
+
+Then we can plot a categorical choropleth map.
+
+```{r}
+ehsa_sig <- hex_ehsa  %>%
+  filter(p_value < 0.05)
+tmap_mode("plot")
+tm_shape(hex_ehsa) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(ehsa_sig) +
+  tm_fill("classification") + 
+  tm_borders(alpha = 0.4)
 ```
