@@ -202,6 +202,7 @@ tm_shape(bustrip_hex) +
             legend.height = 0.45, 
             legend.width = 0.35,
             frame = TRUE) +
+  tm_compass(type="4star", size = 1.5) +
   tm_borders(alpha = 0.5) +
   tm_scale_bar() +
   tm_grid(alpha =0.2)
@@ -224,6 +225,7 @@ tm_shape(peaktrip_hex) +
             legend.height = 0.45, 
             legend.width = 0.35,
             frame = TRUE) +
+  tm_compass(type="4star", size = 1.5) +
   tm_borders(alpha = 0.5) +
   tm_scale_bar() +
   tm_grid(alpha =0.2)
@@ -293,7 +295,8 @@ There's no obvious difference between the distribution of total bus trips and pe
               title = "",
               colorNA = NULL,
               showNA = FALSE) + 
-      tm_layout(panel.show = TRUE,
+      tm_layout(legend.position = c("right","bottom"),
+                panel.show = TRUE,
                 panel.labels = c("Weekday 6-9am", "Weekday 5-8pm", "Weekend 11am-2pm", "Weekend 4-7pm")) 
     ```
 
@@ -308,7 +311,8 @@ There's no obvious difference between the distribution of total bus trips and pe
               title = "",
               colorNA = NULL,
               showNA = FALSE) + 
-      tm_layout(panel.show = TRUE,
+      tm_layout(legend.position = c("right", "bottom"),
+                panel.show = TRUE,
                 panel.labels = c("Weekday 6-9am", "Weekday 5-8pm", "Weekend 11am-2pm", "Weekend 4-7pm"))
     ```
 
@@ -385,7 +389,7 @@ peak_trips_h_st <- spacetime(peak_trips_hour %>% ungroup(),
 ```
 
 ::: callout-notice
-Here since the Number of rows does not equal \`n time-periods x n locations, I used complete_spacetime_cube() to fill up the cube, rows with no trips would be NA.
+Here since the Number of rows does not equal \`n time-periods x n locations, I used complete_spacetime_cube() to fill up the cube. Rows with no trips would be NA, so I used replace_na to convert NA into 0 for further use.
 :::
 
 Before continue, we better make sure the peak_st is indeed an space-time cube object.
@@ -418,6 +422,19 @@ peak_trips_h_gi <- peak_trips_h_nb %>%
   mutate(TRIPS = replace_na(TRIPS,0)) %>%
   mutate(gi_star = local_gstar_perm(TRIPS, nb, wt)) %>% 
   tidyr::unnest(gi_star)
+
+print(head(peak_trips_h_gi, 5))
+```
+
+We can plot the Gi\* measures for clearer observation.
+
+```{r}
+ggplot(data = peak_trips_h_gi %>% ungroup(), 
+       aes(x = TIME_PER_HOUR, 
+           y = gi_star)) +
+  geom_line() +
+  labs(title = "Gi* Measures of Peak Time Bus Trips") +
+  theme_light()
 ```
 
 #### 4.2.2 Perform Mann-Kendall Test
@@ -441,7 +458,13 @@ peak_trips_h_gi %>%
 ehsa <- emerging_hotspot_analysis(
   x = peak_trips_h_st, 
   .var = "TRIPS",
-  nsim = 20)
+  nsim = 9)
+```
+
+Take a look at the EHSA.
+
+```{r}
+glimpse(ehsa)
 ```
 
 ##### 4.2.3.2 Visualizing the distribution of EHSA classes.
@@ -469,9 +492,146 @@ ehsa_sig <- hex_ehsa  %>%
   filter(p_value < 0.05)
 tmap_mode("plot")
 tm_shape(hex_ehsa) +
-  tm_polygons() +
+  tm_polygons(colorNA = NULL) +
   tm_borders(alpha = 0.5) +
 tm_shape(ehsa_sig) +
-  tm_fill("classification") + 
-  tm_borders(alpha = 0.4)
+  tm_fill("classification",
+          title = "EHSA classes") + 
+  tm_layout(main.title = "EHSA Classes in Choropleth Maps",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_grid(alpha =0.2) +
+  tm_compass(type="4star", size = 1.5) +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar() 
+```
+
+::: callout-caution
+As the geographic distribution of EHSA classes above shows, the hexagons with most number of bus trips during peak hours are filtered out by the significance level of 5% and for those areas with nearly no bus trips during peak hours with significance level below 5% but no pattern detected.
+:::
+
+#### 4.2.4 Conduct Emerging Hotspot Analysis for all hours.
+
+First let's prepare the space time cube of all bus trips.
+
+```{r}
+all_trips <- left_join(busstop_hexagon, 
+  odbus %>%
+  group_by(ORIGIN_PT_CODE,TIME_PER_HOUR) %>%
+  summarise(TRIPS = sum(TOTAL_TRIPS)) %>%
+  rename('BUS_STOP_N'='ORIGIN_PT_CODE')) %>% 
+  group_by(id,TIME_PER_HOUR) %>%
+  summarise(TRIPS = sum(TRIPS)) %>%
+  right_join(hexagon %>% select(id, geometry), by = "id")
+```
+
+```{r}
+all_trips_st <- spacetime(all_trips %>% ungroup(), 
+                     hexagon,
+                      .loc_col = "id",
+                      .time_col = "TIME_PER_HOUR") %>%
+  complete_spacetime_cube() %>%
+  mutate(TRIPS = replace_na(TRIPS,0))
+```
+
+```{r}
+#| code-fold: false
+is_spacetime_cube(all_trips_st)
+```
+
+After confirmation of space time cube, we need to identify neighbors and to derive an inverse distance weights before we can calculate Gi\*.
+
+```{r}
+all_trips_nb <- all_trips_st %>%
+  activate("geometry") %>%
+  mutate(nb = include_self(st_contiguity(geometry)),
+         wt = st_inverse_distance(nb, geometry,
+                                  scale = 1,
+                                  alpha = 1),
+         .before = 1) %>%
+  set_nbs("nb") %>%
+  set_wts("wt")
+
+print(head(all_trips_nb, 5))
+```
+
+Then we can calculate Gi\* values.
+
+```{r}
+all_trips_gi <- all_trips_nb %>%
+  mutate(TRIPS = replace_na(TRIPS,0)) %>%
+  mutate(gi_star = local_gstar_perm(TRIPS, nb, wt)) %>% 
+  tidyr::unnest(gi_star)
+
+print(head(all_trips_gi, 5))
+```
+
+Base on Gi\* we can perform Mann-Kendall Test.
+
+```{r}
+all_trips_gi %>%
+  group_by(TIME_PER_HOUR) %>%
+  summarise(mk = list(
+    unclass(
+      MannKendall(gi_star)))) %>%
+ unnest_wider(mk)
+```
+
+And we can also plot out the Gi measures.
+
+```{r}
+ggplot(data = all_trips_gi %>% ungroup(), 
+       aes(x = TIME_PER_HOUR, 
+           y = gi_star)) +
+  geom_line() +
+  labs(title = "Gi* Measures of All Time Bus Trips") +
+  theme_light()
+```
+
+Performing Emerging Hotspot Analysis base on all trips space time cube.
+
+```{r}
+ehsa_all <- emerging_hotspot_analysis(
+  x = all_trips_st, 
+  .var = "TRIPS",
+  nsim = 9)
+```
+
+Check distribution of EHSA classes.
+
+```{r}
+ggplot(data = ehsa_all,
+       aes(x = classification)) +
+  geom_bar()
+```
+
+Check geographic distribution of EHSA classes.
+
+```{r}
+hex_ehsa_all <- hexagon %>%
+  left_join(ehsa_all,
+            by = join_by(id == location))
+
+all_sig <- hex_ehsa_all  %>%
+  filter(p_value < 0.1)
+tmap_mode("plot")
+tm_shape(hex_ehsa_all) +
+  tm_polygons(colorNA = NULL) +
+  tm_borders(alpha = 0.5) +
+tm_shape(all_sig) +
+  tm_fill("classification",
+          title = "EHSA classes") + 
+  tm_layout(main.title = "EHSA Classes in Choropleth Maps",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_grid(alpha =0.2) +
+  tm_compass(type="4star", size = 1.5) +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar() 
 ```
