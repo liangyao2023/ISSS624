@@ -1,5 +1,5 @@
 ---
-title: "Inclass_Ex01"
+title: "In Class Exercise 1"
 author: "LIANG YAO"
 date: '20 Nov 2023'
 date-modified: "`r Sys.Date()`"
@@ -51,7 +51,7 @@ glimpse(odbus)
 
 ### **2.3 Extracting Data**
 
-Extract passenger volume data between 7-9 o\'clock during weekdays.
+Extract passenger volume data between 7-9 o'clock during weekdays.
 
 ```{r}
 origin7_9 <- odbus %>%
@@ -92,7 +92,7 @@ busstop <- st_read(dsn = "./data/geospatial",
 ```
 
 ::: callout-tip
-Here we use \"st_transform(crs = 3414)\" to change the coordinate from decimal degree to meters.
+Here we use "st_transform(crs = 3414)" to change the coordinate from decimal degree to meters.
 :::
 
 ### **3.2 Wrangling Data**

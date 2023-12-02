@@ -1,5 +1,5 @@
 ---
-title: "Inclass_Ex02"
+title: "In Class Exercise 2"
 author: "LIANG YAO"
 date: '25 Nov 2023'
 date-modified: "`r Sys.Date()`"
@@ -58,10 +58,10 @@ hunan_data = left_join(hunan, hunan_2012, by = join_by(County)) %>%
 ::: callout-notice
 Since both tables got 88 observations, in order to ensure retaining all geospatial properties, left join to geo file.
 
-Here the \'County\' column is the common column in both table, actually no need to explicitly identify the join_by, but here I would like to leave it there for clarification.
+Here the 'County' column is the common column in both table, actually no need to explicitly identify the join_by, but here I would like to leave it there for clarification.
 :::
 
-#### **1.4.1 Deriving contiguity weights: Queen\'s Method.**
+#### **1.4.1 Deriving contiguity weights: Queen's Method.**
 
 ```{r}
 wm_q <- hunan_data %>%
@@ -70,7 +70,7 @@ wm_q <- hunan_data %>%
          .before = 1)  # to put the weight column at the most left.
 ```
 
-## **2 Computing local Moron\'s I**
+## **2 Computing local Moron's I**
 
 ```{r}
 lisa <- wm_q %>%

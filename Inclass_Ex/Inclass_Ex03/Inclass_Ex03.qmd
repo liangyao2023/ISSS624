@@ -1,7 +1,7 @@
 ---
-title: "Inclass_Ex03"
+title: "In Class Exercise 3"
 author: "LIANG YAO"
-date: '30 Nov 2023'
+date: '2 Dec 2023'
 date-modified: "`r Sys.Date()`"
 execute: 
   warning: false
@@ -13,80 +13,40 @@ format:
     code-summary: "Show the code"
 ---
 
-## **1 Overview**
+## **1 Preparing Flow Data**
 
-Spatial interaction represent the flow of people, material, or information between locations in geographical space. It encompasses everything from freight shipments, energy flows, and the global trade in rare antiquities, to flight schedules, rush hour woes, and pedestrian foot traffic.
-
-Each spatial interaction, as an analogy for a set of movements, is composed of a discrete origin/destination pair. Each pair can be represented as a cell in a matrix where rows are related to the locations (centroids) of origin, while columns are related to locations (centroids) of destination. Such a matrix is commonly known as an origin/destination matrix, or a spatial interaction matrix.
-
-In this hands-on exercise, you will learn how to build an OD matrix by using *Passenger Volume by Origin Destination Bus Stops* data set downloaded from LTA DataMall. By the end of this hands-on exercise, you will be able:
-
--   to import and extract OD data for a selected time interval,
-
--   to import and save geospatial data (i.e. bus stops and mpsz) into sf tibble data frame objects,
-
--   to populate planning subzone code into bus stops sf tibble data frame,
-
--   to construct desire lines geospatial data from the OD data, and
-
--   to visualise passenger volume by origin and destination bus stops by using the desire lines data.
-
-## **2 Preparing Flow Data**
-
-### **2.1 Get ready**
+### **1.1 Get ready**
 
 ```{r}
-pacman::p_load(tmap, sf, DT, stplanr,
-               performance,
-               ggpubr, tidyverse)
+pacman::p_load(tmap, sf, DT, sp, reshape2,
+               ggpubr, units, tidyverse)
 ```
 
-### **2.2 Importing the OD Data**
+### **1.2 The Data**
 
-Import the passenger volume by origin destination bus stops data.
+This exercise is a continuation of **Chapter 15: Processing and Visualising Flow Data** and the following data will be used:
+
+-   *od_data.rds*, weekday morning peak passenger flows at planning subzone level.
+
+-   *mpsz.rds*, URA Master Plan 2019 Planning Subzone boundary in simple feature tibble data frame format.
+
+Beside these two data sets, an additional attribute data file called pop.csv will be provided.
+
+Import the population data.
 
 ```{r}
-odbus <- read_csv("./data/aspatial/origin_destination_bus_202310.csv") %>%
-  mutate(ORIGIN_PT_CODE = as.factor(ORIGIN_PT_CODE),
-         DESTINATION_PT_CODE = as.factor(DESTINATION_PT_CODE))
+pop <- read_csv("./data/aspatial/pop.csv")
 ```
 
-Check the data.
+Check the population data per age range.
 
 ```{r}
-glimpse(odbus)
+glimpse(pop)
 ```
 
-### **2.3 Extracting Data**
+## **2 Computing Distance Matrix**
 
-For the purpose of this exercise, we will extract commuting flows on weekday and between 6 and 9 o\'clock.
-
-```{r}
-odbus6_9 <- odbus %>%
-  filter(DAY_TYPE == "WEEKDAY") %>%
-  filter(TIME_PER_HOUR >= 6 &
-           TIME_PER_HOUR <= 9) %>%
-  group_by(ORIGIN_PT_CODE,
-           DESTINATION_PT_CODE) %>%
-  summarise(TRIPS = sum(TOTAL_TRIPS))
-```
-
-Save the output in rds format
-
-```{r}
-write_rds(odbus6_9, "./data/rds/odbus6_9.rds")
-```
-
-Can extract data from saved file again.
-
-```{r}
-# read from saved file.
-# odbus6_9 <- read_rds("chap15/data/rds/odbus6_9.rds")
-```
-
-## **3 Working with GeoSpatial Data**
-
-### **3.1 Importing Data**
+### **2.1 Importing Data**
 
 Use sf package to read master plan subzone data and bus stop location data.
 
@@ -95,89 +55,233 @@ mpsz <- st_read(dsn = "./data/geospatial",
                    layer = "MPSZ-2019") %>% st_transform(crs = 3414)
 ```
 
+### **2.2 Converting from sf data.table to SpatialPolygonsDataFrame**
+
+There are at least two ways to compute the required distance matrix. One is based on sf and the other is based on sp. Past experience shown that computing distance matrix by using sf function took relatively longer time that sp method especially the data set is large. In view of this, sp method is used in the code chunks below.
+
+First [`as.Spatial()`](https://r-spatial.github.io/sf/reference/coerce-methods.html) will be used to convert *mpsz* from sf tibble data frame to SpatialPolygonsDataFrame of sp object as shown in the code chunk below.
+
 ```{r}
-busstop <- st_read(dsn = "./data/geospatial",
-                   layer = "BusStop")  %>% st_transform(crs = 3414)
+mpsz_sp <- as(mpsz, "Spatial")
+mpsz_sp
 ```
 
-::: callout-tip
-Here we use "st_transform(crs = 3414)" to change the coordinate from decimal degree to meters.
+### 2.3 **Computing the distance matrix**
+
+Next, [`spDists()`](https://www.rdocumentation.org/packages/sp/versions/2.1-1/topics/spDistsN1) of sp package will be used to compute the Euclidean distance between the centroids of the planning subzones.
+
+```{r}
+dist <- spDists(mpsz_sp, 
+                longlat = FALSE)
+head(dist, n=c(10, 10))
+```
+
+### **2.4 Labelling column and row heanders of a distance matrix**
+
+First, we will create a list sorted according to the the distance matrix by planning sub-zone code.
+
+```{r}
+sz_names <- mpsz$SUBZONE_C
+```
+
+Next we will attach `SUBZONE_C` to row and column for distance matrix matching ahead
+
+```{r}
+colnames(dist) <- paste0(sz_names)
+rownames(dist) <- paste0(sz_names)
+```
+
+### 2.5 **Pivoting distance value by SUBZONE_C**
+
+Next, we will pivot the distance matrix into a long table by using the row and column subzone codes as show in the code chunk below.
+
+```{r}
+distPair <- melt(dist) %>%
+  rename(dist = value)
+head(distPair, 10)
+```
+
+::: callout-notice
+Notice that the within zone distance is 0.
 :::
 
-### **3.2 Wrangling Data**
+### 2.6 **Updating intra-zonal distances**
 
-Combine the bus stop location with the Singapore subzone map.
+In this section, we are going to append a constant value to replace the intra-zonal distance of 0.
+
+First, we will select and find out the minimum value of the distance by using `summary()`.
 
 ```{r}
-busstop_mpsz <- st_intersection(busstop, mpsz) %>%
-  select(BUS_STOP_N, SUBZONE_C) %>%
-  st_drop_geometry()
+distPair %>%
+  filter(dist > 0) %>%
+  summary()
 ```
 
--   `st_intersection()` is used to perform point and polygon overly and the output will be in point sf object.
-
--   `select()` of dplyr package is then use to retain only BUS_STOP_N and SUBZONE_C in the busstop_mpsz sf data frame.
-
--   five bus stops are excluded in the resultant data frame because they are outside of Singapore boundary.
+Next, a constant distance value of 50m is added into intra-zones distance.
 
 ```{r}
-glimpse(busstop_mpsz)
+distPair$dist <- ifelse(distPair$dist == 0,
+                        50, distPair$dist)
 ```
 
-Next, we are going to append the planning subzone code from busstop_mpsz data frame onto odbus7_9 data frame.
+The code chunk below will be used to check the result data.frame.
 
 ```{r}
-od_data <- left_join(odbus6_9 , busstop_mpsz,
-            by = c("ORIGIN_PT_CODE" = "BUS_STOP_N")) %>%
-  rename(ORIGIN_BS = ORIGIN_PT_CODE,
-         ORIGIN_SZ = SUBZONE_C,
-         DESTIN_BS = DESTINATION_PT_CODE)
+summary(distPair)
 ```
 
-Before continue, it is a good practice for us to check for duplicating records.
+The code chunk below is used to rename the origin and destination fields.
 
 ```{r}
-od_data %>%
-  group_by_all() %>%
-  filter(n()>1) %>%
-  ungroup()
+distPair <- distPair %>%
+  rename(orig = Var1,
+         dest = Var2)
 ```
 
-If duplicated records are found, the code chunk below will be used to retain the unique records.
+The code chunk below is used to rename the origin and destination fields.
 
 ```{r}
-od_data <- unique(od_data)
+write_rds(distPair, "./data/rds/distPair.rds") 
 ```
 
-Next, we will update od_data data frame cwith the planning subzone codes.
+## **3. Preparing flow data**
+
+Iimport *od_data* save in hands on exercise 3 into R environment.
 
 ```{r}
-od_data <- left_join(od_data , busstop_mpsz,
-            by = c("DESTIN_BS" = "BUS_STOP_N")) 
+od_data <- read_rds("./data/rds/od_data.rds")
 ```
 
+Next, we will compute the total passenger trip between and within planning subzones by using the code chunk below. The output is all *flow_data*.
+
 ```{r}
-od_data <- unique(od_data)
+flow_data <- od_data %>%
+  group_by(ORIGIN_SZ, DESTIN_SZ) %>% 
+  summarize(TRIPS = sum(MORNING_PEAK)) 
+
+head(flow_data, 10)
 ```
 
+### 3.1 **Separating intra-flow from passenger volume df**
+
+Code chunk below is used to add three new fields in `flow_data` dataframe.
+
 ```{r}
-od_data <- od_data %>%
-  rename(DESTIN_SZ = SUBZONE_C) %>%
-  drop_na() %>%
-  group_by(ORIGIN_SZ, DESTIN_SZ) %>%
-  summarise(MORNING_PEAK = sum(TRIPS))
+flow_data$FlowNoIntra <- ifelse(
+  flow_data$ORIGIN_SZ == flow_data$DESTIN_SZ, 
+  0, flow_data$TRIPS)
+flow_data$offset <- ifelse(
+  flow_data$ORIGIN_SZ == flow_data$DESTIN_SZ, 
+  0.000001, 1)
 ```
 
-It is time to save the output into an rds file format.
+### 3.2 **Combining passenger volume data with distance value**
+
+Before we can join *flow_data* and *distPair*, we need to convert data value type of *ORIGIN_SZ* and *DESTIN_SZ* fields of flow_data dataframe into factor data type.
 
 ```{r}
-write_rds(od_data, "./data/rds/od_data.rds")
+flow_data$ORIGIN_SZ <- as.factor(flow_data$ORIGIN_SZ)
+flow_data$DESTIN_SZ <- as.factor(flow_data$DESTIN_SZ)
 ```
 
-### **3.3 Visualising Spatial Interaction**
-
-In this section, you will learn how to prepare a desire line by using **stplanr** package.
+Now, `left_join()` of **dplyr** will be used to *flow_data* dataframe and *distPair* dataframe. The output is called *flow_data1*.
 
 ```{r}
+flow_data1 <- flow_data %>%
+  left_join (distPair,
+             by = c("ORIGIN_SZ" = "orig",
+                    "DESTIN_SZ" = "dest"))
+```
 
+## **4. Preparing Origin and Destination Attributes**
+
+### 4.1 **Geospatial data wrangling**
+
+```{r}
+pop <- pop %>%
+  left_join(mpsz,
+            by = c("PA" = "PLN_AREA_N",
+                   "SZ" = "SUBZONE_N")) %>%
+  select(1:6) %>%
+  rename(SZ_NAME = SZ,
+         SZ = SUBZONE_C)
+```
+
+### 4.2 **Preparing origin attribute**
+
+```{r}
+flow_data1 <- flow_data1 %>%
+  left_join(pop,
+            by = c(ORIGIN_SZ = "SZ")) %>%
+  rename(ORIGIN_AGE7_12 = AGE7_12,
+         ORIGIN_AGE13_24 = AGE13_24,
+         ORIGIN_AGE25_64 = AGE25_64) %>%
+  select(-c(PA, SZ_NAME))
+```
+
+### 4.3 **Preparing destination attribute**
+
+```{r}
+flow_data1 <- flow_data1 %>%
+  left_join(pop,
+            by = c(DESTIN_SZ = "SZ")) %>%
+  rename(DESTIN_AGE7_12 = AGE7_12,
+         DESTIN_AGE13_24 = AGE13_24,
+         DESTIN_AGE25_64 = AGE25_64) %>%
+  select(-c(PA, SZ_NAME))
+```
+
+We will called the output data file *SIM_data*. it is in rds data file format.
+
+```{r}
+write_rds(flow_data1, "./data/rds/SIM_data.rds")
+```
+
+## 5. **Calibrating Spatial Interaction Models**
+
+In this section, you will learn how to calibrate Spatial Interaction Models by using Poisson Regression method.
+
+### **5.1 Visualising the dependent variable**
+
+```{r}
+SIM_data <- read_rds("./data/rds/SIM_data.rds")
+```
+
+Firstly, let us plot the distribution of the dependent variable (i.e. TRIPS) by using histogram method by using the code chunk below.
+
+```{r}
+ggplot(data = SIM_data,
+       aes(x = TRIPS)) +
+  geom_histogram() +
+  theme_light()
+```
+
+::: callout-notice
+Notice that the distribution is highly skewed and not resemble bell shape or also known as normal distribution.
+:::
+
+Next, let us visualise the relation between the dependent variable and one of the key independent variable in Spatial Interaction Model, namely distance.
+
+```{r}
+ggplot(data = SIM_data,
+       aes(x = dist,
+           y = TRIPS)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  theme_light()
+```
+
+::: callout-notice
+Notice that their relationship hardly resemble linear relationship.
+:::
+
+On the other hand, if we plot the scatter plot by using the log transformed version of both variables, we can see that their relationship is more resemble linear relationship.
+
+```{r}
+ggplot(data = SIM_data,
+       aes(x = log(dist),
+           y = log(TRIPS))) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  theme_light()
 ```

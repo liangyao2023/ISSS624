@@ -3,36 +3,28 @@ project:
 
 website:
   title: "ISSS624 Geospatial Analytics"
-  navbar:
-    left:
-      - href: index.qmd
-        text: Home
-      - text: "Hands on Ex"
-        menu: 
-          - text: "Hands on 1"
-            href: "Handson_Ex/Handson_Ex01/Handson_Ex01.html"
-          - text: "Hands on 2"
-            href: "Handson_Ex/Handson_Ex02/Handson_Ex02.html"
-          - text: "Hands on 3"
-            href: "Handson_Ex/Handson_Ex03/Handson_Ex03.html"
-          - text: "Hands on 4"
-            href: "Handson_Ex/Handson_Ex04/Handson_Ex04.html"
-          - text: "Hands on 5"
-            href: "Handson_Ex/Handson_Ex05/Handson_Ex05.html"
-      - text: "In class Ex"
-        menu: 
-          - text: "In class 1"
-            href: "Inclass_Ex/Inclass_Ex01/Inclass_Ex01.html"
-          - text: "In class 2"
-            href: "Inclass_Ex/Inclass_Ex02/Inclass_Ex02.html"
-          - text: "In class 3"
-            href: "Inclass_Ex/Inclass_Ex03/Inclass_Ex03.html"
-      - text: "Take Home Ex"
-        menu: 
-          - text: "Take Home 1"
-            href: "Takehome_Ex/Takehome_Ex01/Takehome_Ex01.html"
-          - text: "Take Home 2"
-            href: "Takehome_Ex/Takehome_Ex02/Takehome_Ex02.html"
+  sidebar:
+    style: "floating"
+    search: true
+    contents:
+      - contents: index.qmd
+        section: Home
+      - section: "Hands on Ex"
+        contents: 
+          - href: "Handson_Ex/Handson_Ex01/Handson_Ex01.qmd"
+          - href: "Handson_Ex/Handson_Ex02/Handson_Ex02.qmd"
+          - href: "Handson_Ex/Handson_Ex03/Handson_Ex03.qmd"
+          - href: "Handson_Ex/Handson_Ex04/Handson_Ex04.qmd"
+          - href: "Handson_Ex/Handson_Ex05/Handson_Ex05.qmd"
+      - section: "In class Ex"
+        contents: 
+          - href: "Inclass_Ex/Inclass_Ex01/Inclass_Ex01.qmd"
+          - href: "Inclass_Ex/Inclass_Ex02/Inclass_Ex02.qmd"
+          - href: "Inclass_Ex/Inclass_Ex03/Inclass_Ex03.qmd"
+      - section: "Take Home Ex"
+        contents: 
+          - href: "Takehome_Ex/Takehome_Ex01/Takehome_Ex01.qmd"
+          - href: "Takehome_Ex/Takehome_Ex02/Takehome_Ex02.qmd"
 
 format:
   html:
