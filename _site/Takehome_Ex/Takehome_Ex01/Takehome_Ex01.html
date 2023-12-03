@@ -227,7 +227,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../Takehome_Ex/Takehome_Ex02/Takehome_Ex02.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Takehome_Ex01</span></a>
+ <span class="menu-text">Take Home Exercise 2</span></a>
   </div>
 </li>
       </ul>
@@ -410,6 +410,19 @@ Geodetic CRS:  WGS 84</code></pre>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(BUS_STOP_N, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>To avoid same geometry for multiple bus stop, here I choose to use st_nearest_feature as join method instead of intersection.</p>
+</div>
+</div>
 <p>Check for duplicate geometry.</p>
 <div class="cell">
 <details>
@@ -584,8 +597,7 @@ $ interval       &lt;chr&gt; "weekday_6_9", "weekday_6_9", "weekday_6_9", "weekd
 </div>
 </div>
 <p>4.1.3.2 Then, to display the geographical distribution of 4 time intervals separately for comparison:</p>
-<ul>
-<li><p>Regenerate trip data with the “interval” column to indicate different time intervals.</p>
+<p>Regenerate trip data with the “interval” column to indicate different time intervals.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -622,6 +634,7 @@ Important
 <p>Here I create a column “daily_trips” to find number of trips per day, since it’s hard to compare the absolute number when we are differentiating weekday and weekend peak times intervals. For Aug 2023, there are 31 days in which 8 days are weekends and 1 day is National holiday.</p>
 </div>
 </div>
+<p>To draw polygons, I will use pivot_wider to pivot interval into columns.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -644,16 +657,16 @@ Important
 4 01029                424         117           364           472
 5 01039                589         134           603           823</code></pre>
 </div>
-</div></li>
-<li><p>Join back with hexagon.</p>
+</div>
+<p>Join back with hexagon before visualization.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>interval_dailytrip_hex <span class="ot">&lt;-</span> <span class="fu">left_join</span>(bus_hex, peak_dailytrips_interval,</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>                           <span class="at">by =</span> <span class="fu">join_by</span>(BUS_STOP_N)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-</div></li>
-<li><p>Then we can visualize daily trip distribution for each time intervals.</p>
+</div>
+<p>Then we can visualize daily trip distribution for each time intervals.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -675,8 +688,7 @@ Important
 <div class="cell-output-display">
 <p><img src="Takehome_Ex01_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
 </div>
-</div></li>
-</ul>
+</div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -801,13 +813,13 @@ Note
 <p>The Moran’I statistic (0.10933) indicates a slightly positive spatial autocorrelation, suggesting that similar values tend to be clustered together in our map, so we can continue with LISA.</p>
 </div>
 </div>
-<p>Then we can compute LISA of bus trips during peak time hours.</p>
+<p>Then we can compute LISA of passenger trips during peak time hours.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>lisa <span class="ot">&lt;-</span> weight_q <span class="sc">%&gt;%</span> </span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">local_moran =</span> <span class="fu">local_moran</span>(</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    TRIPS, nb, wt, <span class="at">nsim =</span> <span class="dv">99</span>),</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    TRIPS, nb, wt, <span class="at">nsim =</span> <span class="dv">199</span>),</span>
 <span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">.before =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(local_moran)</span>
 <span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
@@ -817,14 +829,14 @@ Note
 <pre><code>Rows: 4,044
 Columns: 18
 $ ii           &lt;dbl&gt; 0.01683533, 0.03658211, 0.05060816, 0.06595975, 0.0565997…
-$ eii          &lt;dbl&gt; 0.0009541101, 0.0064280658, 0.0042094701, -0.0076434160, …
-$ var_ii       &lt;dbl&gt; 0.0008058112, 0.0008351798, 0.0040217186, 0.0139656662, 0…
-$ z_ii         &lt;dbl&gt; 0.5594575, 1.0434115, 0.7316440, 0.6228244, 0.9455728, 0.…
-$ p_ii         &lt;dbl&gt; 0.5758495, 0.2967578, 0.4643859, 0.5333999, 0.3443665, 0.…
-$ p_ii_sim     &lt;dbl&gt; 0.22, 0.10, 0.14, 0.06, 0.14, 0.92, 0.24, 0.02, 0.16, 0.5…
-$ p_folded_sim &lt;dbl&gt; 0.11, 0.05, 0.07, 0.03, 0.07, 0.46, 0.12, 0.01, 0.08, 0.2…
-$ skewness     &lt;dbl&gt; -4.170107, -1.927549, -4.831018, -6.631103, -2.055824, -6…
-$ kurtosis     &lt;dbl&gt; 19.7591067, 5.0822437, 33.1092352, 53.0827866, 5.4390592,…
+$ eii          &lt;dbl&gt; 0.0023890846, 0.0011069140, -0.0020652686, -0.0074375318,…
+$ var_ii       &lt;dbl&gt; 0.0004110818, 0.0018452585, 0.0075471964, 0.0087109926, 0…
+$ z_ii         &lt;dbl&gt; 0.7125097, 0.8258406, 0.6063156, 0.7864048, 0.7386234, 0.…
+$ p_ii         &lt;dbl&gt; 0.4761492, 0.4088945, 0.5443052, 0.4316304, 0.4601357, 0.…
+$ p_ii_sim     &lt;dbl&gt; 0.21, 0.07, 0.13, 0.04, 0.09, 0.82, 0.28, 0.03, 0.11, 0.5…
+$ p_folded_sim &lt;dbl&gt; 0.105, 0.035, 0.065, 0.020, 0.045, 0.410, 0.140, 0.015, 0…
+$ skewness     &lt;dbl&gt; -3.920333, -4.000057, -6.940666, -4.857223, -4.134682, -5…
+$ kurtosis     &lt;dbl&gt; 22.623553, 22.981888, 63.967522, 32.243401, 22.447469, 49…
 $ mean         &lt;fct&gt; Low-Low, Low-Low, Low-Low, Low-Low, Low-Low, Low-Low, Low…
 $ median       &lt;fct&gt; Low-Low, Low-Low, Low-Low, Low-Low, Low-Low, Low-Low, Low…
 $ pysal        &lt;fct&gt; Low-Low, Low-Low, Low-Low, Low-Low, Low-Low, Low-Low, Low…
@@ -862,16 +874,30 @@ $ geometry     &lt;POLYGON [m]&gt; POLYGON ((3845.122 26554.27..., POLYGON ((384
 <span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
 <span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_shape</span>(lisa) <span class="sc">+</span></span>
 <span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"p_ii_sim"</span>,</span>
-<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>          <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.001</span>, <span class="fl">0.01</span>, <span class="fl">0.05</span>, <span class="dv">1</span>),</span>
-<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>              <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"0.001"</span>, <span class="st">"0.01"</span>, <span class="st">"0.05"</span>, <span class="st">"Not sig"</span>)) <span class="sc">+</span> </span>
-<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"p-value of local Moran's I"</span>,</span>
-<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="fl">0.8</span>)</span>
-<span id="cb30-25"><a href="#cb30-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-26"><a href="#cb30-26" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_arrange</span>(map1, map2, <span class="at">ncol =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> <span class="st">"-Reds"</span>,</span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>          <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.001</span>, <span class="fl">0.01</span>, <span class="fl">0.05</span>, <span class="dv">1</span>),</span>
+<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>              <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"0.001"</span>, <span class="st">"0.01"</span>, <span class="st">"0.05"</span>, <span class="st">"Not sig"</span>)) <span class="sc">+</span> </span>
+<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"p-value of local Moran's I"</span>,</span>
+<span id="cb30-25"><a href="#cb30-25" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="fl">0.8</span>)</span>
+<span id="cb30-26"><a href="#cb30-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-27"><a href="#cb30-27" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_arrange</span>(map1, map2, <span class="at">ncol =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="Takehome_Ex01_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Here I reverse the color palette of p-value, to put more emphasize on significant spots (which with lower p-value).</p>
 </div>
 </div>
 <p>Then we can display only the significant (p-value &lt; 0.05) part on map.</p>
@@ -906,7 +932,11 @@ Note
 </div>
 <div class="callout-body-container callout-body">
 <p><strong>Observation:</strong></p>
-<p>Hot points mostly concentrate in those busy bus stops and cold points mostly in border area.</p>
+<ul>
+<li><p>Hot spots mostly concentrate in those busy bus stops and cold spots mostly in border area.</p></li>
+<li><p>The location of those hot/cold spots go along with the density of passenger trip numbers.</p></li>
+<li><p>There’s seldom High-Low or Low-High spots which would be spatial outliers.</p></li>
+</ul>
 </div>
 </div>
 

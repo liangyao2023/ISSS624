@@ -1,7 +1,7 @@
 ---
-title: "Takehome_Ex01"
+title: "Take Home Exercise 2"
 author: "LIANG YAO"
-date: '30 Nov 2023'
+date: '7 Dec 2023'
 date-modified: "`r Sys.Date()`"
 execute: 
   warning: false
