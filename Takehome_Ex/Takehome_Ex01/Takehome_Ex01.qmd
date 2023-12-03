@@ -57,7 +57,7 @@ busstop = st_read(dsn = "./data/geospatial/BusStopLocation_Jul2023",
   distinct(BUS_STOP_N, .keep_all = TRUE)
 ```
 
-::: callout-caution
+::: callout-important
 Here I found that there are several rows in 'busstop' data have duplicate BUS_STOP_N but slightly different geometry, so I used distinct to keep only one of those for doing intersection with hexagon.
 :::
 
@@ -287,18 +287,18 @@ First we need to derive contiguity weights use knn method.
 
 ```{r}
 weight_q <-  peaktrip_hex%>%
-  mutate(nb = st_knn(geometry),
-         wt = st_weights(nb,
-                         style = "W",
-                         allow_zero = TRUE),
+  mutate(nb = st_knn(geometry,k=3),
+         wt = st_inverse_distance(nb, geometry),
          .before = 1) %>%
   mutate(TRIPS = replace_na(TRIPS,0))
 
 weight_q
 ```
 
-::: callout-notice
-Here since there are lagged value to zone without neighbors, I set allow_zero to True.
+::: callout-important
+-   To treat those area with sparse location of bus stops (0 neighbor case), I used st_knn instead of st_contiguity, since our bus stops' geometry are not necessarily adjacent to each other.
+
+-   Hence since there are lagged value to zone without neighbors, I set allow_zero to True.
 :::
 
 Before continue, we can perform a **Global Moran'I permutation test**.
@@ -306,17 +306,24 @@ Before continue, we can perform a **Global Moran'I permutation test**.
 ```{r}
 set.seed(1234)
 global_moran_perm(weight_q$TRIPS,
-                       weight_q$nb,
-                       weight_q$wt,
-                  nsim = 9)
+                  weight_q$nb,
+                  weight_q$wt,
+                  adjust.n = TRUE,
+                  nsim = 99)
 ```
+
+::: callout-note
+**Observation:**
+
+The Moran'I statistic (0.10933) indicates a slightly positive spatial autocorrelation, suggesting that similar values tend to be clustered together in our map, so we can continue with LISA.
+:::
 
 Then we can compute LISA of bus trips during peak time hours.
 
 ```{r}
 lisa <- weight_q %>% 
   mutate(local_moran = local_moran(
-    TRIPS, nb, wt, nsim = 9),
+    TRIPS, nb, wt, nsim = 99),
          .before = 1) %>%
   unnest(local_moran)
 
@@ -325,7 +332,7 @@ glimpse(lisa)
 
 #### 4.2.2 Display LISA maps of passenger trips
 
-First of all, let's visualize **local Moran's I and p-value**.
+First of all, let's check out local Moran's I and p-value.
 
 ```{r}
 tmap_mode("plot")
@@ -356,25 +363,25 @@ map2 <-
 tmap_arrange(map1, map2, ncol = 2)
 ```
 
-Then we can display only the significant part on map.
+Then we can display only the significant (p-value \< 0.05) part on map.
 
 ```{r}
 lisa_sig <- lisa  %>%
-  filter(p_ii_sim < 0.5)
+  filter(p_ii_sim < 0.05)
 tmap_mode("plot")
 tm_shape(sz) +
   tm_polygons(alpha = 0.3) +
   tm_borders(alpha = 0.2) +
 tm_shape(lisa) +
-  tm_polygons() +
-  tm_borders(alpha = 0.5) +
+  tm_polygons(alpha = 0.1) +
+  tm_borders(alpha = 0.1) +
 tm_shape(lisa_sig) +
   tm_fill("mean") + 
-  tm_borders(alpha = 0.4)
+  tm_borders(alpha = 0.8)
 ```
 
 ::: callout-note
 **Observation:**
 
-As the geographic distribution of EHSA classes above shows, the hexagons with most number of bus trips during peak hours are filtered out by the significance level of 5% and for those areas with nearly no bus trips during peak hours with significance level below 5% but no pattern detected.
+Hot points mostly concentrate in those busy bus stops and cold points mostly in border area.
 :::

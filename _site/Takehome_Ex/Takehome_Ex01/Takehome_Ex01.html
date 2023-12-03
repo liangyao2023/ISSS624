@@ -355,13 +355,13 @@ Bounding box:  xmin: 3970.122 ymin: 26482.1 xmax: 48284.56 ymax: 52983.82
 Projected CRS: SVY21</code></pre>
 </div>
 </div>
-<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Caution
+Important
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -710,14 +710,12 @@ Note
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>weight_q <span class="ot">&lt;-</span>  peaktrip_hex<span class="sc">%&gt;%</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">nb =</span> <span class="fu">st_knn</span>(geometry),</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">wt =</span> <span class="fu">st_weights</span>(nb,</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">style =</span> <span class="st">"W"</span>,</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>                         <span class="at">allow_zero =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">.before =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">TRIPS =</span> <span class="fu">replace_na</span>(TRIPS,<span class="dv">0</span>))</span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>weight_q</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">nb =</span> <span class="fu">st_knn</span>(geometry,<span class="at">k=</span><span class="dv">3</span>),</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">wt =</span> <span class="fu">st_inverse_distance</span>(nb, geometry),</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">.before =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">TRIPS =</span> <span class="fu">replace_na</span>(TRIPS,<span class="dv">0</span>))</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>weight_q</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Simple feature collection with 4044 features and 5 fields
@@ -726,21 +724,45 @@ Dimension:     XY
 Bounding box:  xmin: 3720.122 ymin: 26337.76 xmax: 48220.12 ymax: 50225.63
 Projected CRS: SVY21 / Singapore TM
 First 10 features:
-   nb wt  id BUS_STOP_N TRIPS                       geometry
-1  20  1   1      25059   549 POLYGON ((3845.122 26554.27...
-2  11  1   6      25751   210 POLYGON ((3845.122 28719.33...
-3   5  1  73      26379   374 POLYGON ((3970.122 30667.89...
-4   7  1 195      25719  4555 POLYGON ((4220.122 29801.86...
-5   3  1 198      26369   403 POLYGON ((4220.122 31100.9,...
-6   9  1 202      26279   722 POLYGON ((4220.122 32832.95...
-7   4  1 257      26389   780 POLYGON ((4345.122 30018.37...
-8  15  1 261      26299   499 POLYGON ((4345.122 31750.42...
-9   6  1 264      26261 15682 POLYGON ((4345.122 33049.46...
-10 13  1 265      26251  2419 POLYGON ((4345.122 33482.47...</code></pre>
+           nb                                 wt  id BUS_STOP_N TRIPS
+1   2, 11, 20 0.04618802, 0.06099943, 0.06575959   1      25059   549
+2  11, 12, 14 0.11094004, 0.11094004, 0.08728716   6      25751   210
+3    5, 7, 18    0.2000000, 0.1333333, 0.1109400  73      26379   374
+4   7, 12, 14    0.4000000, 0.2000000, 0.2309401 195      25719  4555
+5    3, 8, 18    0.2000000, 0.1511858, 0.1511858 198      26369   403
+6   9, 10, 15    0.4000000, 0.1511858, 0.1333333 202      26279   722
+7   4, 14, 17    0.4000000, 0.2000000, 0.1511858 257      26389   780
+8   5, 15, 23    0.1511858, 0.2000000, 0.1109400 261      26299   499
+9   6, 10, 13    0.4000000, 0.2309401, 0.1511858 264      26261 15682
+10   6, 9, 13    0.1511858, 0.2309401, 0.4000000 265      26251  2419
+                         geometry
+1  POLYGON ((3845.122 26554.27...
+2  POLYGON ((3845.122 28719.33...
+3  POLYGON ((3970.122 30667.89...
+4  POLYGON ((4220.122 29801.86...
+5  POLYGON ((4220.122 31100.9,...
+6  POLYGON ((4220.122 32832.95...
+7  POLYGON ((4345.122 30018.37...
+8  POLYGON ((4345.122 31750.42...
+9  POLYGON ((4345.122 33049.46...
+10 POLYGON ((4345.122 33482.47...</code></pre>
 </div>
 </div>
-<div class="callout-notice">
-<p>Here since there are lagged value to zone without neighbors, I set allow_zero to True.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p>To treat those area with sparse location of bus stops (0 neighbor case), I used st_knn instead of st_contiguity, since our bus stops’ geometry are not necessarily adjacent to each other.</p></li>
+<li><p>Hence since there are lagged value to zone without neighbors, I set allow_zero to True.</p></li>
+</ul>
+</div>
 </div>
 <p>Before continue, we can perform a <strong>Global Moran’I permutation test</strong>.</p>
 <div class="cell">
@@ -748,9 +770,10 @@ First 10 features:
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">global_moran_perm</span>(weight_q<span class="sc">$</span>TRIPS,</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>                       weight_q<span class="sc">$</span>nb,</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>                       weight_q<span class="sc">$</span>wt,</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nsim =</span> <span class="dv">9</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>                  weight_q<span class="sc">$</span>nb,</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>                  weight_q<span class="sc">$</span>wt,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">adjust.n =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nsim =</span> <span class="dv">99</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -758,10 +781,24 @@ First 10 features:
 
 data:  x 
 weights: listw  
-number of simulations + 1: 10 
+number of simulations + 1: 100 
 
-statistic = 0.10469, observed rank = 10, p-value &lt; 2.2e-16
+statistic = 0.10933, observed rank = 100, p-value &lt; 2.2e-16
 alternative hypothesis: two.sided</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Observation:</strong></p>
+<p>The Moran’I statistic (0.10933) indicates a slightly positive spatial autocorrelation, suggesting that similar values tend to be clustered together in our map, so we can continue with LISA.</p>
 </div>
 </div>
 <p>Then we can compute LISA of bus trips during peak time hours.</p>
@@ -770,7 +807,7 @@ alternative hypothesis: two.sided</code></pre>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>lisa <span class="ot">&lt;-</span> weight_q <span class="sc">%&gt;%</span> </span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">local_moran =</span> <span class="fu">local_moran</span>(</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    TRIPS, nb, wt, <span class="at">nsim =</span> <span class="dv">9</span>),</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    TRIPS, nb, wt, <span class="at">nsim =</span> <span class="dv">99</span>),</span>
 <span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">.before =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(local_moran)</span>
 <span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
@@ -779,20 +816,20 @@ alternative hypothesis: two.sided</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>Rows: 4,044
 Columns: 18
-$ ii           &lt;dbl&gt; 0.07361788, 0.10499894, 0.12475089, 0.07829376, 0.1247508…
-$ eii          &lt;dbl&gt; 0.0438639639, 0.0283078481, 0.0454337451, 0.0279630875, -…
-$ var_ii       &lt;dbl&gt; 0.0091415770, 0.0107257139, 0.0216611296, 0.0020559327, 0…
-$ z_ii         &lt;dbl&gt; 0.3111957, 0.7405115, 0.5389227, 1.1100135, 0.8414002, -0…
-$ p_ii         &lt;dbl&gt; 0.7556519, 0.4589897, 0.5899402, 0.2669932, 0.4001238, 0.…
-$ p_ii_sim     &lt;dbl&gt; 1.0, 0.8, 0.6, 0.4, 0.2, 0.6, 1.0, 0.2, 0.6, 0.8, 0.2, 0.…
-$ p_folded_sim &lt;dbl&gt; 0.5, 0.4, 0.3, 0.2, 0.1, 0.3, 0.5, 0.1, 0.3, 0.4, 0.1, 0.…
-$ skewness     &lt;dbl&gt; -0.9331344, -0.6403639, -1.7969024, -0.6715130, -0.889114…
-$ kurtosis     &lt;dbl&gt; -0.6030848, -1.2505965, 1.8420093, -0.6922039, -0.8754686…
-$ mean         &lt;fct&gt; Low-Low, Low-Low, Low-Low, Low-Low, Low-Low, Low-High, Lo…
-$ median       &lt;fct&gt; Low-Low, Low-Low, Low-Low, Low-Low, Low-Low, Low-High, Lo…
-$ pysal        &lt;fct&gt; Low-Low, Low-Low, Low-Low, Low-Low, Low-Low, Low-High, Lo…
-$ nb           &lt;nb&gt; 20, 11, 5, 7, 3, 9, 4, 15, 6, 13, 2, 14, 10, 17, 8, 13, 14…
-$ wt           &lt;list&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
+$ ii           &lt;dbl&gt; 0.01683533, 0.03658211, 0.05060816, 0.06595975, 0.0565997…
+$ eii          &lt;dbl&gt; 0.0009541101, 0.0064280658, 0.0042094701, -0.0076434160, …
+$ var_ii       &lt;dbl&gt; 0.0008058112, 0.0008351798, 0.0040217186, 0.0139656662, 0…
+$ z_ii         &lt;dbl&gt; 0.5594575, 1.0434115, 0.7316440, 0.6228244, 0.9455728, 0.…
+$ p_ii         &lt;dbl&gt; 0.5758495, 0.2967578, 0.4643859, 0.5333999, 0.3443665, 0.…
+$ p_ii_sim     &lt;dbl&gt; 0.22, 0.10, 0.14, 0.06, 0.14, 0.92, 0.24, 0.02, 0.16, 0.5…
+$ p_folded_sim &lt;dbl&gt; 0.11, 0.05, 0.07, 0.03, 0.07, 0.46, 0.12, 0.01, 0.08, 0.2…
+$ skewness     &lt;dbl&gt; -4.170107, -1.927549, -4.831018, -6.631103, -2.055824, -6…
+$ kurtosis     &lt;dbl&gt; 19.7591067, 5.0822437, 33.1092352, 53.0827866, 5.4390592,…
+$ mean         &lt;fct&gt; Low-Low, Low-Low, Low-Low, Low-Low, Low-Low, Low-Low, Low…
+$ median       &lt;fct&gt; Low-Low, Low-Low, Low-Low, Low-Low, Low-Low, Low-Low, Low…
+$ pysal        &lt;fct&gt; Low-Low, Low-Low, Low-Low, Low-Low, Low-Low, Low-Low, Low…
+$ nb           &lt;nb&gt; &lt;2, 11, 20&gt;, &lt;11, 12, 14&gt;, &lt;5, 7, 18&gt;, &lt;7, 12, 14&gt;, &lt;3, 8,…
+$ wt           &lt;list&gt; &lt;0.04618802, 0.06099943, 0.06575959&gt;, &lt;0.11094004, 0.110…
 $ id           &lt;int&gt; 1, 6, 73, 195, 198, 202, 257, 261, 264, 265, 315, 318, 32…
 $ BUS_STOP_N   &lt;chr&gt; "25059", "25751", "26379", "25719", "26369", "26279", "26…
 $ TRIPS        &lt;dbl&gt; 549, 210, 374, 4555, 403, 722, 780, 499, 15682, 2419, 241…
@@ -802,7 +839,7 @@ $ geometry     &lt;POLYGON [m]&gt; POLYGON ((3845.122 26554.27..., POLYGON ((384
 </section>
 <section id="display-lisa-maps-of-passenger-trips" class="level4">
 <h4 class="anchored" data-anchor-id="display-lisa-maps-of-passenger-trips">4.2.2 Display LISA maps of passenger trips</h4>
-<p>First of all, let’s visualize <strong>local Moran’s I and p-value</strong>.</p>
+<p>First of all, let’s check out local Moran’s I and p-value.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -837,22 +874,22 @@ $ geometry     &lt;POLYGON [m]&gt; POLYGON ((3845.122 26554.27..., POLYGON ((384
 <p><img src="Takehome_Ex01_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Then we can display only the significant part on map.</p>
+<p>Then we can display only the significant (p-value &lt; 0.05) part on map.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>lisa_sig <span class="ot">&lt;-</span> lisa  <span class="sc">%&gt;%</span></span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(p_ii_sim <span class="sc">&lt;</span> <span class="fl">0.5</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(p_ii_sim <span class="sc">&lt;</span> <span class="fl">0.05</span>)</span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span>
 <span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(sz) <span class="sc">+</span></span>
 <span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
 <span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
 <span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(lisa) <span class="sc">+</span></span>
-<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
-<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
 <span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(lisa_sig) <span class="sc">+</span></span>
 <span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"mean"</span>) <span class="sc">+</span> </span>
-<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="Takehome_Ex01_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="672"></p>
@@ -869,7 +906,7 @@ Note
 </div>
 <div class="callout-body-container callout-body">
 <p><strong>Observation:</strong></p>
-<p>As the geographic distribution of EHSA classes above shows, the hexagons with most number of bus trips during peak hours are filtered out by the significance level of 5% and for those areas with nearly no bus trips during peak hours with significance level below 5% but no pattern detected.</p>
+<p>Hot points mostly concentrate in those busy bus stops and cold points mostly in border area.</p>
 </div>
 </div>
 
