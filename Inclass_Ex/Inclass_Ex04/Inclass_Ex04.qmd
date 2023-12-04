@@ -1,0 +1,56 @@
+---
+title: "In Class Exercise 4"
+author: "LIANG YAO"
+date: '9 Dec 2023'
+date-modified: "`r Sys.Date()`"
+execute: 
+  warning: false
+  echo: true
+  eval: true
+format: 
+  html: 
+    code-fold: true
+    code-summary: "Show the code"
+---
+
+## **1 Overview**
+
+**Geographically weighted regression (GWR)** is a spatial statistical technique that takes non-stationary variables into consideration (e.g., climate; demographic factors; physical environment characteristics) and models the local relationships between these independent variables and an outcome of interest (also known as dependent variable). In this hands-on exercise, you will learn how to build [hedonic pricing](https://www.investopedia.com/terms/h/hedonicpricing.asp) models by using GWR methods. The dependent variable is the resale prices of condominium in 2015. The independent variables are divided into either structural and locational.
+
+## **2 Preparing Data**
+
+Two data sets will be used in this model building exercise, they are:
+
+-   URA Master Plan subzone boundary in shapefile format (i.e. *MP14_SUBZONE_WEB_PL*)
+
+-   condo_resale_2015 in csv format (i.e. *condo_resale_2015.csv*)
+
+### **2.1 Get ready**
+
+```{r}
+pacman::p_load(olsrr, corrplot, ggpubr, sf, spdep, GWmodel, tmap, tidyverse, gtsummary)
+```
+
+### **2.2 Geospatial Data**
+
+Import the subzone data.
+
+```{r}
+
+```
+
+Check the data.
+
+```{r}
+
+```
+
+### **2.3 Aspatial Data**
+
+Importing condo resale data.
+
+```{r}
+
+```
+
+Wrangling data.
