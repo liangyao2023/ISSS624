@@ -782,10 +782,10 @@ F-statistic:  1182 on 1 and 1434 DF,  p-value: &lt; 2.2e-16</code></pre>
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">corrplot</span>(<span class="fu">cor</span>(condo_resale[, <span class="dv">5</span><span class="sc">:</span><span class="dv">23</span>]), <span class="at">diag =</span> <span class="cn">FALSE</span>, <span class="at">order =</span> <span class="st">"AOE"</span>,</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">tl.pos =</span> <span class="st">"td"</span>, <span class="at">tl.cex =</span> <span class="fl">0.5</span>, <span class="at">method =</span> <span class="st">"number"</span>, <span class="at">type =</span> <span class="st">"upper"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">tl.pos =</span> <span class="st">"td"</span>, <span class="at">tl.cex =</span> <span class="fl">0.5</span>, <span class="at">number.cex =</span> <span class="fl">0.5</span>, <span class="at">method =</span> <span class="st">"number"</span>, <span class="at">type =</span> <span class="st">"upper"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="Handson_Ex04_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="672"></p>
+<p><img src="Handson_Ex04_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="1152"></p>
 </div>
 </div>
 <p>Matrix reorder is very important for mining the hiden structure and patter in the matrix. There are four methods in corrplot (parameter order), named "AOE", "FPC", "hclust", "alphabet". In the code chunk above, AOE order is used. It orders the variables by using the <em>angular order of the eigenvectors</em> method suggested by <a href="https://www.datavis.ca/papers/corrgram.pdf">Michael Friendly</a>.</p>
@@ -922,23 +922,23 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
 </details>
 <div class="cell-output-display">
 
-<div id="jedkfdodjb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#jedkfdodjb table {
+<div id="cbchlizifs" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#cbchlizifs table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#jedkfdodjb thead, #jedkfdodjb tbody, #jedkfdodjb tfoot, #jedkfdodjb tr, #jedkfdodjb td, #jedkfdodjb th {
+#cbchlizifs thead, #cbchlizifs tbody, #cbchlizifs tfoot, #cbchlizifs tr, #cbchlizifs td, #cbchlizifs th {
   border-style: none;
 }
 
-#jedkfdodjb p {
+#cbchlizifs p {
   margin: 0;
   padding: 0;
 }
 
-#jedkfdodjb .gt_table {
+#cbchlizifs .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -964,12 +964,12 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-left-color: #D3D3D3;
 }
 
-#jedkfdodjb .gt_caption {
+#cbchlizifs .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#jedkfdodjb .gt_title {
+#cbchlizifs .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -981,7 +981,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-bottom-width: 0;
 }
 
-#jedkfdodjb .gt_subtitle {
+#cbchlizifs .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -993,7 +993,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-top-width: 0;
 }
 
-#jedkfdodjb .gt_heading {
+#cbchlizifs .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1005,13 +1005,13 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-right-color: #D3D3D3;
 }
 
-#jedkfdodjb .gt_bottom_border {
+#cbchlizifs .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#jedkfdodjb .gt_col_headings {
+#cbchlizifs .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1026,7 +1026,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-right-color: #D3D3D3;
 }
 
-#jedkfdodjb .gt_col_heading {
+#cbchlizifs .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1046,7 +1046,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   overflow-x: hidden;
 }
 
-#jedkfdodjb .gt_column_spanner_outer {
+#cbchlizifs .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1058,15 +1058,15 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 4px;
 }
 
-#jedkfdodjb .gt_column_spanner_outer:first-child {
+#cbchlizifs .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#jedkfdodjb .gt_column_spanner_outer:last-child {
+#cbchlizifs .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#jedkfdodjb .gt_column_spanner {
+#cbchlizifs .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1078,11 +1078,11 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   width: 100%;
 }
 
-#jedkfdodjb .gt_spanner_row {
+#cbchlizifs .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#jedkfdodjb .gt_group_heading {
+#cbchlizifs .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1108,7 +1108,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   text-align: left;
 }
 
-#jedkfdodjb .gt_empty_group_heading {
+#cbchlizifs .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1123,15 +1123,15 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   vertical-align: middle;
 }
 
-#jedkfdodjb .gt_from_md > :first-child {
+#cbchlizifs .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#jedkfdodjb .gt_from_md > :last-child {
+#cbchlizifs .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#jedkfdodjb .gt_row {
+#cbchlizifs .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1150,7 +1150,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   overflow-x: hidden;
 }
 
-#jedkfdodjb .gt_stub {
+#cbchlizifs .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1163,7 +1163,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 5px;
 }
 
-#jedkfdodjb .gt_stub_row_group {
+#cbchlizifs .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1177,15 +1177,15 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   vertical-align: top;
 }
 
-#jedkfdodjb .gt_row_group_first td {
+#cbchlizifs .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#jedkfdodjb .gt_row_group_first th {
+#cbchlizifs .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#jedkfdodjb .gt_summary_row {
+#cbchlizifs .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1195,16 +1195,16 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 5px;
 }
 
-#jedkfdodjb .gt_first_summary_row {
+#cbchlizifs .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#jedkfdodjb .gt_first_summary_row.thick {
+#cbchlizifs .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#jedkfdodjb .gt_last_summary_row {
+#cbchlizifs .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1214,7 +1214,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-bottom-color: #D3D3D3;
 }
 
-#jedkfdodjb .gt_grand_summary_row {
+#cbchlizifs .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1224,7 +1224,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 5px;
 }
 
-#jedkfdodjb .gt_first_grand_summary_row {
+#cbchlizifs .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1234,7 +1234,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-top-color: #D3D3D3;
 }
 
-#jedkfdodjb .gt_last_grand_summary_row_top {
+#cbchlizifs .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1244,11 +1244,11 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-bottom-color: #D3D3D3;
 }
 
-#jedkfdodjb .gt_striped {
+#cbchlizifs .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#jedkfdodjb .gt_table_body {
+#cbchlizifs .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1257,7 +1257,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-bottom-color: #D3D3D3;
 }
 
-#jedkfdodjb .gt_footnotes {
+#cbchlizifs .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1271,7 +1271,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-right-color: #D3D3D3;
 }
 
-#jedkfdodjb .gt_footnote {
+#cbchlizifs .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1280,7 +1280,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 5px;
 }
 
-#jedkfdodjb .gt_sourcenotes {
+#cbchlizifs .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1294,7 +1294,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-right-color: #D3D3D3;
 }
 
-#jedkfdodjb .gt_sourcenote {
+#cbchlizifs .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1302,63 +1302,63 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 5px;
 }
 
-#jedkfdodjb .gt_left {
+#cbchlizifs .gt_left {
   text-align: left;
 }
 
-#jedkfdodjb .gt_center {
+#cbchlizifs .gt_center {
   text-align: center;
 }
 
-#jedkfdodjb .gt_right {
+#cbchlizifs .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#jedkfdodjb .gt_font_normal {
+#cbchlizifs .gt_font_normal {
   font-weight: normal;
 }
 
-#jedkfdodjb .gt_font_bold {
+#cbchlizifs .gt_font_bold {
   font-weight: bold;
 }
 
-#jedkfdodjb .gt_font_italic {
+#cbchlizifs .gt_font_italic {
   font-style: italic;
 }
 
-#jedkfdodjb .gt_super {
+#cbchlizifs .gt_super {
   font-size: 65%;
 }
 
-#jedkfdodjb .gt_footnote_marks {
+#cbchlizifs .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#jedkfdodjb .gt_asterisk {
+#cbchlizifs .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#jedkfdodjb .gt_indent_1 {
+#cbchlizifs .gt_indent_1 {
   text-indent: 5px;
 }
 
-#jedkfdodjb .gt_indent_2 {
+#cbchlizifs .gt_indent_2 {
   text-indent: 10px;
 }
 
-#jedkfdodjb .gt_indent_3 {
+#cbchlizifs .gt_indent_3 {
   text-indent: 15px;
 }
 
-#jedkfdodjb .gt_indent_4 {
+#cbchlizifs .gt_indent_4 {
   text-indent: 20px;
 }
 
-#jedkfdodjb .gt_indent_5 {
+#cbchlizifs .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -1458,23 +1458,23 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
 </details>
 <div class="cell-output-display">
 
-<div id="chiygieagw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#chiygieagw table {
+<div id="duacjcywnk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#duacjcywnk table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#chiygieagw thead, #chiygieagw tbody, #chiygieagw tfoot, #chiygieagw tr, #chiygieagw td, #chiygieagw th {
+#duacjcywnk thead, #duacjcywnk tbody, #duacjcywnk tfoot, #duacjcywnk tr, #duacjcywnk td, #duacjcywnk th {
   border-style: none;
 }
 
-#chiygieagw p {
+#duacjcywnk p {
   margin: 0;
   padding: 0;
 }
 
-#chiygieagw .gt_table {
+#duacjcywnk .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1500,12 +1500,12 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-left-color: #D3D3D3;
 }
 
-#chiygieagw .gt_caption {
+#duacjcywnk .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#chiygieagw .gt_title {
+#duacjcywnk .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1517,7 +1517,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-bottom-width: 0;
 }
 
-#chiygieagw .gt_subtitle {
+#duacjcywnk .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1529,7 +1529,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-top-width: 0;
 }
 
-#chiygieagw .gt_heading {
+#duacjcywnk .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1541,13 +1541,13 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-right-color: #D3D3D3;
 }
 
-#chiygieagw .gt_bottom_border {
+#duacjcywnk .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#chiygieagw .gt_col_headings {
+#duacjcywnk .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1562,7 +1562,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-right-color: #D3D3D3;
 }
 
-#chiygieagw .gt_col_heading {
+#duacjcywnk .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1582,7 +1582,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   overflow-x: hidden;
 }
 
-#chiygieagw .gt_column_spanner_outer {
+#duacjcywnk .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1594,15 +1594,15 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 4px;
 }
 
-#chiygieagw .gt_column_spanner_outer:first-child {
+#duacjcywnk .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#chiygieagw .gt_column_spanner_outer:last-child {
+#duacjcywnk .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#chiygieagw .gt_column_spanner {
+#duacjcywnk .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1614,11 +1614,11 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   width: 100%;
 }
 
-#chiygieagw .gt_spanner_row {
+#duacjcywnk .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#chiygieagw .gt_group_heading {
+#duacjcywnk .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1644,7 +1644,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   text-align: left;
 }
 
-#chiygieagw .gt_empty_group_heading {
+#duacjcywnk .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1659,15 +1659,15 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   vertical-align: middle;
 }
 
-#chiygieagw .gt_from_md > :first-child {
+#duacjcywnk .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#chiygieagw .gt_from_md > :last-child {
+#duacjcywnk .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#chiygieagw .gt_row {
+#duacjcywnk .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1686,7 +1686,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   overflow-x: hidden;
 }
 
-#chiygieagw .gt_stub {
+#duacjcywnk .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1699,7 +1699,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 5px;
 }
 
-#chiygieagw .gt_stub_row_group {
+#duacjcywnk .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1713,15 +1713,15 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   vertical-align: top;
 }
 
-#chiygieagw .gt_row_group_first td {
+#duacjcywnk .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#chiygieagw .gt_row_group_first th {
+#duacjcywnk .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#chiygieagw .gt_summary_row {
+#duacjcywnk .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1731,16 +1731,16 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 5px;
 }
 
-#chiygieagw .gt_first_summary_row {
+#duacjcywnk .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#chiygieagw .gt_first_summary_row.thick {
+#duacjcywnk .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#chiygieagw .gt_last_summary_row {
+#duacjcywnk .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1750,7 +1750,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-bottom-color: #D3D3D3;
 }
 
-#chiygieagw .gt_grand_summary_row {
+#duacjcywnk .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1760,7 +1760,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 5px;
 }
 
-#chiygieagw .gt_first_grand_summary_row {
+#duacjcywnk .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1770,7 +1770,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-top-color: #D3D3D3;
 }
 
-#chiygieagw .gt_last_grand_summary_row_top {
+#duacjcywnk .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1780,11 +1780,11 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-bottom-color: #D3D3D3;
 }
 
-#chiygieagw .gt_striped {
+#duacjcywnk .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#chiygieagw .gt_table_body {
+#duacjcywnk .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1793,7 +1793,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-bottom-color: #D3D3D3;
 }
 
-#chiygieagw .gt_footnotes {
+#duacjcywnk .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1807,7 +1807,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-right-color: #D3D3D3;
 }
 
-#chiygieagw .gt_footnote {
+#duacjcywnk .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1816,7 +1816,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 5px;
 }
 
-#chiygieagw .gt_sourcenotes {
+#duacjcywnk .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1830,7 +1830,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-right-color: #D3D3D3;
 }
 
-#chiygieagw .gt_sourcenote {
+#duacjcywnk .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1838,63 +1838,63 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 5px;
 }
 
-#chiygieagw .gt_left {
+#duacjcywnk .gt_left {
   text-align: left;
 }
 
-#chiygieagw .gt_center {
+#duacjcywnk .gt_center {
   text-align: center;
 }
 
-#chiygieagw .gt_right {
+#duacjcywnk .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#chiygieagw .gt_font_normal {
+#duacjcywnk .gt_font_normal {
   font-weight: normal;
 }
 
-#chiygieagw .gt_font_bold {
+#duacjcywnk .gt_font_bold {
   font-weight: bold;
 }
 
-#chiygieagw .gt_font_italic {
+#duacjcywnk .gt_font_italic {
   font-style: italic;
 }
 
-#chiygieagw .gt_super {
+#duacjcywnk .gt_super {
   font-size: 65%;
 }
 
-#chiygieagw .gt_footnote_marks {
+#duacjcywnk .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#chiygieagw .gt_asterisk {
+#duacjcywnk .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#chiygieagw .gt_indent_1 {
+#duacjcywnk .gt_indent_1 {
   text-indent: 5px;
 }
 
-#chiygieagw .gt_indent_2 {
+#duacjcywnk .gt_indent_2 {
   text-indent: 10px;
 }
 
-#chiygieagw .gt_indent_3 {
+#duacjcywnk .gt_indent_3 {
   text-indent: 15px;
 }
 
-#chiygieagw .gt_indent_4 {
+#duacjcywnk .gt_indent_4 {
   text-indent: 20px;
 }
 
-#chiygieagw .gt_indent_5 {
+#duacjcywnk .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -2344,7 +2344,7 @@ Tip
 <pre><code>   ***********************************************************************
    *                       Package   GWmodel                             *
    ***********************************************************************
-   Program starts at: 2023-12-05 20:40:10.827306 
+   Program starts at: 2023-12-05 21:51:57.844477 
    Call:
    gwr.basic(formula = SELLING_PRICE ~ AREA_SQM + AGE + PROX_CBD + 
     PROX_CHILDCARE + PROX_ELDERLYCARE + PROX_URA_GROWTH_AREA + 
@@ -2452,7 +2452,7 @@ Tip
    Adjusted R-square value:  0.8430418 
 
    ***********************************************************************
-   Program stops at: 2023-12-05 20:40:12.014578 </code></pre>
+   Program stops at: 2023-12-05 21:51:59.022781 </code></pre>
 </div>
 </div>
 <p>The report shows that the AICc of the gwr is 42263.61 which is significantly smaller than the globel multiple linear regression model of 42967.1.</p>
@@ -2524,7 +2524,7 @@ Adaptive bandwidth: 30 CV score: 4.422088e+14 </code></pre>
 <pre><code>   ***********************************************************************
    *                       Package   GWmodel                             *
    ***********************************************************************
-   Program starts at: 2023-12-05 20:40:21.078373 
+   Program starts at: 2023-12-05 21:52:08.041235 
    Call:
    gwr.basic(formula = SELLING_PRICE ~ AREA_SQM + AGE + PROX_CBD + 
     PROX_CHILDCARE + PROX_ELDERLYCARE + PROX_URA_GROWTH_AREA + 
@@ -2632,7 +2632,7 @@ Adaptive bandwidth: 30 CV score: 4.422088e+14 </code></pre>
    Adjusted R-square value:  0.8561185 
 
    ***********************************************************************
-   Program stops at: 2023-12-05 20:40:22.60218 </code></pre>
+   Program stops at: 2023-12-05 21:52:09.354202 </code></pre>
 </div>
 </div>
 <p>The report shows that the AICc the adaptive distance gwr is 41982.22 which is even smaller than the AICc of the fixed distance gwr of 42263.61.</p>
