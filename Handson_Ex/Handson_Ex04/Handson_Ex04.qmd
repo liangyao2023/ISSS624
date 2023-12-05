@@ -265,7 +265,7 @@ The code chunk below is used to plot a scatterplot matrix of the relationship be
 #| fig-width: 12
 #| fig-height: 12
 corrplot(cor(condo_resale[, 5:23]), diag = FALSE, order = "AOE",
-         tl.pos = "td", tl.cex = 0.5, number.cex = 0.5, method = "number", type = "upper")
+         tl.pos = "td", tl.cex = 1, number.cex = 1, method = "number", type = "upper")
 ```
 
 Matrix reorder is very important for mining the hiden structure and patter in the matrix. There are four methods in corrplot (parameter order), named \"AOE\", \"FPC\", \"hclust\", \"alphabet\". In the code chunk above, AOE order is used. It orders the variables by using the *angular order of the eigenvectors* method suggested by [Michael Friendly](https://www.datavis.ca/papers/corrgram.pdf).
