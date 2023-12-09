@@ -254,19 +254,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#regionalisation-of-multivariate-water-point-attributes-with-non-spatially-constrained-and-spatially-constrained-clustering-methods" id="toc-regionalisation-of-multivariate-water-point-attributes-with-non-spatially-constrained-and-spatially-constrained-clustering-methods" class="nav-link active" data-scroll-target="#regionalisation-of-multivariate-water-point-attributes-with-non-spatially-constrained-and-spatially-constrained-clustering-methods"><strong>Regionalisation of Multivariate Water Point Attributes with Non-spatially Constrained and Spatially Constrained Clustering Methods</strong></a>
+  <li><a href="#applied-spatial-interaction-models-a-case-study-of-singapore-public-bus-commuter-flows" id="toc-applied-spatial-interaction-models-a-case-study-of-singapore-public-bus-commuter-flows" class="nav-link active" data-scroll-target="#applied-spatial-interaction-models-a-case-study-of-singapore-public-bus-commuter-flows"><strong>Applied Spatial Interaction Models: A case study of Singapore public bus commuter flows</strong></a>
   <ul class="collapse">
   <li><a href="#setting-the-scene" id="toc-setting-the-scene" class="nav-link" data-scroll-target="#setting-the-scene"><strong>1 Setting the Scene</strong></a></li>
   <li><a href="#objectives" id="toc-objectives" class="nav-link" data-scroll-target="#objectives"><strong>2 Objectives</strong></a></li>
   <li><a href="#the-data" id="toc-the-data" class="nav-link" data-scroll-target="#the-data"><strong>3 The Data</strong></a>
   <ul class="collapse">
-  <li><a href="#aspatial-data" id="toc-aspatial-data" class="nav-link" data-scroll-target="#aspatial-data"><strong>3.1 Aspatial data</strong></a></li>
-  <li><a href="#geospatial-data" id="toc-geospatial-data" class="nav-link" data-scroll-target="#geospatial-data"><strong>3.2 Geospatial data</strong></a></li>
+  <li><a href="#open-government-data" id="toc-open-government-data" class="nav-link" data-scroll-target="#open-government-data"><strong>Open Government Data</strong></a></li>
+  <li><a href="#specially-collected-data" id="toc-specially-collected-data" class="nav-link" data-scroll-target="#specially-collected-data"><strong>Specially collected data</strong></a></li>
   </ul></li>
   <li><a href="#the-task" id="toc-the-task" class="nav-link" data-scroll-target="#the-task"><strong>4 The Task</strong></a>
   <ul class="collapse">
-  <li><a href="#thematic-mapping" id="toc-thematic-mapping" class="nav-link" data-scroll-target="#thematic-mapping"><strong>4.1 Thematic mapping</strong></a></li>
-  <li><a href="#analytic-mapping" id="toc-analytic-mapping" class="nav-link" data-scroll-target="#analytic-mapping"><strong>4.2 Analytic mapping</strong></a></li>
+  <li><a href="#geospatial-data-science" id="toc-geospatial-data-science" class="nav-link" data-scroll-target="#geospatial-data-science"><strong>4.1 Geospatial Data Science</strong></a></li>
+  <li><a href="#spatial-interaction-modelling" id="toc-spatial-interaction-modelling" class="nav-link" data-scroll-target="#spatial-interaction-modelling"><strong>4.2 Spatial Interaction Modelling</strong></a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -301,7 +301,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">December 4, 2023</p>
+      <p class="date-modified">December 9, 2023</p>
     </div>
   </div>
     
@@ -310,93 +310,414 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<section id="regionalisation-of-multivariate-water-point-attributes-with-non-spatially-constrained-and-spatially-constrained-clustering-methods" class="level1">
-<h1><strong>Regionalisation of Multivariate Water Point Attributes with Non-spatially Constrained and Spatially Constrained Clustering Methods</strong></h1>
+<section id="applied-spatial-interaction-models-a-case-study-of-singapore-public-bus-commuter-flows" class="level1">
+<h1><strong>Applied Spatial Interaction Models: A case study of Singapore public bus commuter flows</strong></h1>
 <section id="setting-the-scene" class="level2">
 <h2 class="anchored" data-anchor-id="setting-the-scene"><strong>1 Setting the Scene</strong></h2>
-<p>According to <a href="https://blogs.worldbank.org/transport/smart-mobility-it-time-re-think-urban-mobility">The World Bank</a>, urban mobility was traditionally about “moving people from one location to another location within or between urban areas”. This notion was based on two principles: people needed to access housing, jobs and other urban services such as education and entertainment, and they displayed a preference for motorised mobility due to its cost efficiency.</p>
-<p>But in recent years, there has been a shift in these perspectives in the minds of Transit Agencies and local governments who now recognise that online services limit a person’s need for transport.</p>
-<p>Today, urban mobility is no longer just about moving people around by motorized vehicles. What people really need is the accessibility to various urban services. Numerous examples from different cities have demonstrated that better accessibility doesn’t have to be achieved by generating motorized traffic, particularly by private vehicles.</p>
+<p>What are the driving forces behind urban dwellers to weak up early in morning to commute from their home locations to their work places? What are the impact of removing a public bus service on the commuters reside along the corridor of the bus route? These and many other questions related to urban mobility are challenges faced by transport operators and urban managers.</p>
+<p>To provide answer to this question, traditionally, commuters survey will be used. However, commuters survey is a very costly, time-consuming and laborous, not to mention that the survey data tend to take a long time to clean and analyse. As a result, it is not unusual, by the time the survey report was ready, most of the information already out-of-date!</p>
+<p>As city-wide urban infrastructures such as public buses, mass rapid transits, public utilities and roads become digital, the data sets obtained can be used as a framework for tracking movement patterns through space and time. This is particularly true with the recent trend of massive deployment of pervasive computing technologies such as GPS on the vehicles and SMART cards used by public transport commuters.</p>
+<p>Unfortunately, this explosive growth of geospatially-referenced data has far outpaced the planner’s ability to utilize and transform the data into insightful information thus creating an adverse impact on the return on the investment made to collect and manage this data.</p>
 </section>
 <section id="objectives" class="level2">
 <h2 class="anchored" data-anchor-id="objectives"><strong>2 Objectives</strong></h2>
-<p>In this take-home exercise you are required to regionalise Nigeria by using, but not limited to the following measures:</p>
-<ul>
-<li><p>Total number of functional water points</p></li>
-<li><p>Total number of nonfunctional water points</p></li>
-<li><p>Percentage of functional water points</p></li>
-<li><p>Percentage of non-functional water points</p></li>
-<li><p>Percentage of main water point technology (i.e.&nbsp;Hand Pump)</p></li>
-<li><p>Percentage of usage capacity (i.e.&nbsp;&lt; 1000, &gt;=1000)</p></li>
-<li><p>Percentage of rural water points</p></li>
-</ul>
+<p>This take-home exercise is motivated by two main reasons. Firstly, despite increasing amounts of open data available for public consumption, there has not been significant practice research carried out to show how these disparate data sources can be integrated, analysed, and modelled to support policy making decisions.</p>
+<p>Secondly, there is a general lack of practical research to show how geospatial data science and analysis (GDSA) can be used to support decision-making.</p>
+<p>Hence, your task for this take-home exercise is to conduct a case study to demonstrate the potential value of GDSA to integrate publicly available data from multiple sources for building a spatial interaction models to determine factors affecting urban mobility patterns of public bus transit.</p>
 </section>
 <section id="the-data" class="level2">
 <h2 class="anchored" data-anchor-id="the-data"><strong>3 The Data</strong></h2>
-<p>First of all, load needing packages.</p>
-<div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, spdep, tmap, tidyverse, knitr, sfdep, plotly)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-</div>
-<section id="aspatial-data" class="level3">
-<h3 class="anchored" data-anchor-id="aspatial-data"><strong>3.1 Aspatial data</strong></h3>
-<p>For the purpose of this assignment, data from <a href="https://www.waterpointdata.org/access-data/">WPdx Global Data Repositories</a> will be used. There are two versions of the data. They are: WPdx-Basic and WPdx+. You are required to use WPdx+ data set.</p>
-<p>Import the water point data.</p>
-<div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>water_point <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="st">"./data/aspatial/Water_Point_Data_Exchange_-_Plus__WPdx__.csv"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-</div>
+<section id="open-government-data" class="level3">
+<h3 class="anchored" data-anchor-id="open-government-data"><strong>Open Government Data</strong></h3>
+<p>For the purpose of this assignment, data from several open government sources will be used:</p>
+<ul>
+<li><p><em>Passenger Volume by Origin Destination Bus Stops</em>, <em>Bus Stop Location</em>, <em>Train Station</em> and <em>Train Station Exit Point</em>, just to name a few of them, from <a href="https://datamall.lta.gov.sg/content/datamall/en.html">LTA DataMall</a>.</p></li>
+<li><p><em>Master Plan 2019 Subzone Boundary</em>, <em>HDB Property Information</em>, <em>School Directory and Information</em> and other relevant data from <a href="https://beta.data.gov.sg/">Data.gov.sg</a>.</p></li>
+</ul>
 </section>
-<section id="geospatial-data" class="level3">
-<h3 class="anchored" data-anchor-id="geospatial-data"><strong>3.2 Geospatial data</strong></h3>
-<p>Nigeria Level-2 Administrative Boundary (also known as Local Government Area) polygon features GIS data will be used in this take-home exercise. The data can be downloaded either from The <a href="https://data.humdata.org/">Humanitarian Data Exchange</a> portal or <a href="https://www.geoboundaries.org/">geoBoundaries</a>.</p>
-<p>Import Nigeria Level-2 Administrative Boundary data.</p>
+<section id="specially-collected-data" class="level3">
+<h3 class="anchored" data-anchor-id="specially-collected-data"><strong>Specially collected data</strong></h3>
+<ul>
+<li><em>Business</em>, <em>entertn</em>, <em>F&amp;B</em>, <em>FinServ</em>, <em>Leisure&amp;Recreation</em> and <em>Retails</em> are geospatial data sets of the locations of business establishments, entertainments, food and beverage outlets, financial centres, leisure and recreation centres, retail and services stores/outlets I compiled for urban mobility study. They are available on in the geospatial folder to Take-home Exercise 2 data folder.</li>
+<li>HDB: This data set is the geocoded version of <em>HDB Property Information</em> data from data.gov. The data set is prepared using September 2021 data. If you want to prepare you own data by using the latest <em>HDB Property Information</em> provided on data.gov.sg, this <a href="https://is415-msty.netlify.app/posts/2021-10-25-take-home-exercise-3/?panelset6=glimpse%28%29#geocoding-our-aspatial-data">link</a> provides a useful step-by-step guide.</li>
+</ul>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Those specially collected data aim to use within this excercise content only, if intend to put in other usage, approach course instructor <a href="https://www.smu.edu.sg/faculty/profile/9618/KAM-Tin-Seong">Dr.&nbsp;Kam Tin Seong</a> and ask for permission first.</p>
+</div>
+</div>
+<p>For starting, load needing packages.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>boundary <span class="ot">=</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"./data/geospatial"</span>,</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">layer =</span> <span class="st">"geoBoundaries-NGA-ADM2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, spdep, tmap, tidyverse, sfdep, stplanr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Reading layer `geoBoundaries-NGA-ADM2' from data source 
-  `/Users/SMU/liangyao2023/ISSS624/Takehome_Ex/Takehome_Ex02/data/geospatial' 
-  using driver `ESRI Shapefile'
-Simple feature collection with 774 features and 5 fields
-Geometry type: MULTIPOLYGON
-Dimension:     XY
-Bounding box:  xmin: 2.692613 ymin: 4.270204 xmax: 14.67797 ymax: 13.88571
-Geodetic CRS:  WGS 84</code></pre>
-</div>
 </div>
 </section>
 </section>
 <section id="the-task" class="level2">
 <h2 class="anchored" data-anchor-id="the-task"><strong>4 The Task</strong></h2>
-<p><br>
-The specific tasks of this take-home exercise are as follows:</p>
+<section id="geospatial-data-science" class="level3">
+<h3 class="anchored" data-anchor-id="geospatial-data-science"><strong>4.1 Geospatial Data Science</strong></h3>
+<section id="generate-traffic-analysis-zone" class="level4">
+<h4 class="anchored" data-anchor-id="generate-traffic-analysis-zone">4.1.1 Generate Traffic analysis zone</h4>
+<p>Derive an analytical hexagon data of 325m (this distance is the perpendicular distance between the centre of the hexagon and its edges) to represent the <a href="https://tmg.utoronto.ca/files/Reports/Traffic-Zone-Guidance_March-2021_Final.pdf">traffic analysis zone (TAZ)</a>.</p>
+<p>First of all, we need to import <em>Bus Stop Location</em> from LTA DataMall.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>busstop <span class="ot">=</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"./data/geospatial/BusStopLocation_Jul2023"</span>,</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">layer =</span> <span class="st">"BusStop"</span>)  <span class="sc">%&gt;%</span> <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(BUS_STOP_N, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `BusStop' from data source 
+  `/Users/SMU/liangyao2023/ISSS624/Takehome_Ex/Takehome_Ex02/data/geospatial/BusStopLocation_Jul2023' 
+  using driver `ESRI Shapefile'
+Simple feature collection with 5161 features and 3 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: 3970.122 ymin: 26482.1 xmax: 48284.56 ymax: 52983.82
+Projected CRS: SVY21</code></pre>
+</div>
+</div>
+<p>Also import subzone geometry data as our background layer.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>sz <span class="ot">=</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"./data/geospatial"</span>,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">layer =</span> <span class="st">"MP14_SUBZONE_WEB_PL"</span>)  <span class="sc">%&gt;%</span> <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `MP14_SUBZONE_WEB_PL' from data source 
+  `/Users/SMU/liangyao2023/ISSS624/Takehome_Ex/Takehome_Ex02/data/geospatial' 
+  using driver `ESRI Shapefile'
+Simple feature collection with 323 features and 15 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 2667.538 ymin: 15748.72 xmax: 56396.44 ymax: 50256.33
+Projected CRS: SVY21</code></pre>
+</div>
+</div>
+<p>Then we can Derive an analytical hexagon data of 325m.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>hexagon <span class="ot">&lt;-</span> <span class="fu">st_sf</span>(<span class="at">geometry =</span> <span class="fu">st_make_grid</span>(busstop, <span class="at">cellsize =</span> <span class="fu">c</span>(<span class="dv">325</span>,<span class="dv">325</span>), <span class="at">what =</span> <span class="st">"polygons"</span>,<span class="at">square =</span> <span class="cn">FALSE</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">id =</span> <span class="fu">row_number</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Then we can join bus stop with hexagon, and join with subzone to exclude hexagons out of range.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>bus_hex <span class="ot">&lt;-</span> <span class="fu">st_join</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_join</span>(hexagon, busstop<span class="sc">%&gt;%</span><span class="fu">select</span>(BUS_STOP_N,geometry), <span class="at">join =</span> st_intersects),</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  sz) <span class="sc">%&gt;%</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(BUS_STOP_N, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Check for duplicate geometry.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>bus_hex <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(geometry)<span class="sc">%&gt;%</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">row_number</span>()<span class="sc">&gt;</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="construct-o-d-matrix-of-commuter-flows." class="level4">
+<h4 class="anchored" data-anchor-id="construct-o-d-matrix-of-commuter-flows.">4.1.2 Construct O-D Matrix of Commuter Flows.</h4>
+<p>With reference to the time intervals provided in the table below, construct an O-D matrix of commuter flows for a time interval of your choice by integrating <em>Passenger Volume by Origin Destination Bus Stops</em> and <em>Bus Stop Location</em> from <a href="https://datamall.lta.gov.sg/content/datamall/en.html">LTA DataMall</a>. The O-D matrix must be aggregated at the analytics hexagon level</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Peak hour period</th>
+<th>Bus tap on time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Weekday morning peak</td>
+<td>6am to 9am</td>
+</tr>
+<tr class="even">
+<td>Weekday afternoon peak</td>
+<td>5pm to 8pm</td>
+</tr>
+<tr class="odd">
+<td>Weekend/holiday morning peak</td>
+<td>11am to 2pm</td>
+</tr>
+<tr class="even">
+<td>Weekend/holiday evening peak</td>
+<td>4pm to 7pm</td>
+</tr>
+</tbody>
+</table>
+<p>Import bus passenger trips data.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>odbus <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="st">"./data/aspatial/origin_destination_bus_202310.csv"</span>)  <span class="sc">%&gt;%</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ORIGIN_PT_CODE =</span> <span class="fu">as.factor</span>(ORIGIN_PT_CODE),</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">DESTINATION_PT_CODE =</span> <span class="fu">as.factor</span>(DESTINATION_PT_CODE))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Extract passenger trips data during all peak time intervals.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>peak_trips <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  odbus <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(DAY_TYPE <span class="sc">==</span> <span class="st">"WEEKDAY"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(TIME_PER_HOUR <span class="sc">&gt;=</span> <span class="dv">6</span> <span class="sc">&amp;</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>           TIME_PER_HOUR <span class="sc">&lt;=</span> <span class="dv">9</span>),</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  odbus <span class="sc">%&gt;%</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(DAY_TYPE <span class="sc">==</span> <span class="st">"WEEKDAY"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(TIME_PER_HOUR <span class="sc">&gt;=</span> <span class="dv">17</span> <span class="sc">&amp;</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>           TIME_PER_HOUR <span class="sc">&lt;=</span> <span class="dv">20</span>),</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  odbus <span class="sc">%&gt;%</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(DAY_TYPE <span class="sc">==</span> <span class="st">"WEEKENDS/HOLIDAY"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(TIME_PER_HOUR <span class="sc">&gt;=</span> <span class="dv">11</span> <span class="sc">&amp;</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>           TIME_PER_HOUR <span class="sc">&lt;=</span> <span class="dv">14</span>),</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  odbus <span class="sc">%&gt;%</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(DAY_TYPE <span class="sc">==</span> <span class="st">"WEEKENDS/HOLIDAY"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(TIME_PER_HOUR <span class="sc">&gt;=</span> <span class="dv">16</span> <span class="sc">&amp;</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>           TIME_PER_HOUR <span class="sc">&lt;=</span> <span class="dv">19</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ORIGIN_PT_CODE, DESTINATION_PT_CODE) <span class="sc">%&gt;%</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">TRIPS =</span> <span class="fu">sum</span>(TOTAL_TRIPS)) </span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(peak_trips)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 312,840
+Columns: 3
+Groups: ORIGIN_PT_CODE [5,072]
+$ ORIGIN_PT_CODE      &lt;fct&gt; 01012, 01012, 01012, 01012, 01012, 01012, 01012, 0…
+$ DESTINATION_PT_CODE &lt;fct&gt; 01112, 01113, 01121, 01211, 01311, 01549, 01559, 0…
+$ TRIPS               &lt;dbl&gt; 1296, 988, 629, 765, 1217, 16, 29, 1, 94, 102, 68,…</code></pre>
+</div>
+</div>
+<p>Check any bus stops not in our origin ‘bus_hex’ list.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>peak_trips <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span> ORIGIN_PT_CODE <span class="sc">%in%</span> bus_hex<span class="sc">$</span><span class="st">'BUS_STOP_N'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ORIGIN_PT_CODE) <span class="sc">%&gt;%</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">TRIPS =</span> <span class="fu">sum</span>(TRIPS))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 63 × 2
+   ORIGIN_PT_CODE TRIPS
+   &lt;fct&gt;          &lt;dbl&gt;
+ 1 03361            119
+ 2 03549              9
+ 3 03579             48
+ 4 04331          10724
+ 5 11001            857
+ 6 14521             66
+ 7 14529           1596
+ 8 14539           4889
+ 9 18111           7119
+10 40381           4429
+# ℹ 53 more rows</code></pre>
+</div>
+</div>
+<p>59009</p>
+<p>Exclude any bus stops not included in ‘bus_hex’ data before continue.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>peak_trips <span class="ot">&lt;-</span> peak_trips <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ORIGIN_PT_CODE <span class="sc">%in%</span> bus_hex<span class="sc">$</span><span class="st">'BUS_STOP_N'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(DESTINATION_PT_CODE <span class="sc">%in%</span> bus_hex<span class="sc">$</span><span class="st">'BUS_STOP_N'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Duplication check before continue.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>peak_trips <span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by_all</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">n</span>()<span class="sc">&gt;</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>After that, we need to combine those passenger trip data with geospatial data by origin bus stops.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>peaktrip_hex <span class="ot">&lt;-</span> <span class="fu">left_join</span>(peak_trips,bus_hex <span class="sc">%&gt;%</span> <span class="fu">select</span>(BUS_STOP_N, geometry), </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>                          <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"ORIGIN_PT_CODE"</span> <span class="ot">=</span> <span class="st">"BUS_STOP_N"</span>))  <span class="sc">%&gt;%</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">ORIGIN_BS =</span> ORIGIN_PT_CODE,</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">DESTIN_BS =</span> DESTINATION_PT_CODE) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Duplication check before continue:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>peaktrip_hex <span class="sc">%&gt;%</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by_all</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">n</span>()<span class="sc">&gt;</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Then we can continue to join again with geospatial data by destination bus stops.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>peaktrip_hex <span class="ot">&lt;-</span> <span class="fu">left_join</span>(peaktrip_hex, bus_hex <span class="sc">%&gt;%</span> <span class="fu">select</span>(BUS_STOP_N, geometry), </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>                          <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"DESTIN_BS"</span> <span class="ot">=</span> <span class="st">"BUS_STOP_N"</span>),</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>                          <span class="at">suffix =</span> <span class="fu">c</span>(<span class="st">".origin"</span>, <span class="st">".destin"</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Duplication check again.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>peaktrip_hex <span class="sc">%&gt;%</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by_all</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">n</span>()<span class="sc">&gt;</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 0 × 5
+# ℹ 5 variables: ORIGIN_BS &lt;chr&gt;, DESTIN_BS &lt;chr&gt;, TRIPS &lt;dbl&gt;,
+#   geometry.origin &lt;GEOMETRY [m]&gt;, geometry.destin &lt;GEOMETRY [m]&gt;</code></pre>
+</div>
+</div>
+<p>We can save the output into a rds file.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(peaktrip_hex, <span class="st">"./data/rds/peaktrip_hex.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="visualize-o-d-flows" class="level4">
+<h4 class="anchored" data-anchor-id="visualize-o-d-flows">4.1.3 Visualize O-D Flows</h4>
+<p>Display the O-D flows of the passenger trips by using appropriate geovisualisation methods.</p>
+<p>First let’s ensure there aren’t any observations with same origin and destination.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>peaktrip_hex <span class="sc">%&gt;%</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ORIGIN_BS<span class="sc">==</span>DESTIN_BS)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Then we can create flow lines and check summary of data in case there are any zero.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>peaktrip_flow <span class="ot">&lt;-</span> <span class="fu">od2line</span>(<span class="at">flow =</span> peaktrip_hex, </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">zones =</span> bus_hex,</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">zone_code =</span> <span class="st">"BUS_STOP_N"</span>)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(peaktrip_flow)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  ORIGIN_BS          DESTIN_BS             TRIPS         
+ Length:306940      Length:306940      Min.   :     1.0  
+ Class :character   Class :character   1st Qu.:     6.0  
+ Mode  :character   Mode  :character   Median :    27.0  
+                                       Mean   :   209.1  
+                                       3rd Qu.:   112.0  
+                                       Max.   :153711.0  
+      geometry.origin        geometry.destin            geometry     
+ POLYGON      :306940   POLYGON      :306940   LINESTRING   :306940  
+ epsg:3414    :     0   epsg:3414    :     0   epsg:3414    :     0  
+ +proj=tmer...:     0   +proj=tmer...:     0   +proj=tmer...:     0  
+                                                                     
+                                                                     
+                                                                     </code></pre>
+</div>
+</div>
+<p>Till now, we can plot out the bus trip flow during Oct peak hours.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(sz) <span class="sc">+</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tmap_options</span>(<span class="at">check.and.fix =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>peaktrip_flow <span class="sc">%&gt;%</span> </span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(TRIPS <span class="sc">&gt;=</span> <span class="dv">2000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>() <span class="sc">+</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_lines</span>(<span class="at">lwd =</span> <span class="st">"TRIPS"</span>,</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">style =</span> <span class="st">"quantile"</span>,</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">scale =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>, <span class="dv">10</span>),</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>           <span class="at">n =</span> <span class="dv">6</span>,</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>           <span class="at">alpha =</span> <span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Takehome_Ex02_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Observations:</strong></p>
+<p>Describe the spatial patterns revealed by the geovisualisation (not more than 100 words per visual)</p>
+</div>
+</div>
+</section>
+<section id="propulsive-and-attractiveness-variables" class="level4">
+<h4 class="anchored" data-anchor-id="propulsive-and-attractiveness-variables">4.1.4 Propulsive and Attractiveness variables</h4>
+<p>Assemble at least three propulsive and three attractiveness variables by using aspatial and geospatial from publicly available sources.</p>
+</section>
+<section id="distance-matrix" class="level4">
+<h4 class="anchored" data-anchor-id="distance-matrix">4.1.5 Distance Matrix</h4>
+<p>Compute a distance matrix by using the analytical hexagon data derived earlier.</p>
+</section>
+</section>
+<section id="spatial-interaction-modelling" class="level3">
+<h3 class="anchored" data-anchor-id="spatial-interaction-modelling"><strong>4.2 Spatial Interaction Modelling</strong></h3>
+<section id="spatial-interactive-model" class="level4">
+<h4 class="anchored" data-anchor-id="spatial-interactive-model">4.2.1 Spatial Interactive model</h4>
+<p>Calibrate spatial interactive models to determine factors affecting urban commuting flows at the selected time interval.</p>
+</section>
+<section id="visualizing-modelling-results" class="level4">
+<h4 class="anchored" data-anchor-id="visualizing-modelling-results">4.2.2 Visualizing Modelling results</h4>
+<p>Present the modelling results by using appropriate geovisualisation and graphical visualisation methods.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Observations:</strong></p>
 <ul>
-<li><p>Using appropriate sf method, import the shapefile into R and save it in a simple feature data frame format. Note that there are three Projected Coordinate Systems of Nigeria, they are: EPSG: 26391, 26392, and 26303. You can use any one of them.</p></li>
-<li><p>Using appropriate tidyr and dplyr methods, derive the proportion of functional and non-functional water point at LGA level (i.e.&nbsp;ADM2).</p></li>
-<li><p>Combining the geospatial and aspatial data frame into simple feature data frame.</p></li>
-<li><p>Delineating water point measures functional regions by using conventional hierarchical clustering.</p></li>
-<li><p>Delineating water point measures functional regions by using spatially constrained clustering algorithms.</p></li>
+<li>With reference to the Spatial Interaction Model output tables, maps and data visualisation prepared, describe the modelling results</li>
 </ul>
-<section id="thematic-mapping" class="level3">
-<h3 class="anchored" data-anchor-id="thematic-mapping"><strong>4.1 Thematic mapping</strong></h3>
-<p>Plot to show the water points measures derived by using appropriate statistical graphics and choropleth mapping technique.</p>
-<section id="extracting-data" class="level4">
-<h4 class="anchored" data-anchor-id="extracting-data">4.1.1 Extracting Data</h4>
-</section>
-</section>
-<section id="analytic-mapping" class="level3">
-<h3 class="anchored" data-anchor-id="analytic-mapping"><strong>4.2 Analytic mapping</strong></h3>
-<p>Plot functional regions delineated by using both non-spatially constrained and spatially constrained clustering algorithms.</p>
+</div>
+</div>
 
 
+</section>
 </section>
 </section>
 </section>
