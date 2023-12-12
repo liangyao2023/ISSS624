@@ -55,7 +55,7 @@ Those specially collected data aim to use within this excercise content only, if
 For starting, load needing packages.
 
 ```{r}
-pacman::p_load(sf, spdep, tmap, tidyverse, sfdep, stplanr)
+pacman::p_load(sf, spdep, tmap, tidyverse, sfdep, stplanr, reshape2, ggpubr, DT)
 ```
 
 ## **4 The Task**
@@ -64,7 +64,7 @@ pacman::p_load(sf, spdep, tmap, tidyverse, sfdep, stplanr)
 
 #### 4.1.1 Generate Traffic analysis zone
 
-Derive an analytical hexagon data of 325m (this distance is the perpendicular distance between the centre of the hexagon and its edges) to represent the [traffic analysis zone (TAZ)](https://tmg.utoronto.ca/files/Reports/Traffic-Zone-Guidance_March-2021_Final.pdf).
+Derive an analytical hexagon data of 375m (this distance is the perpendicular distance between the centre of the hexagon and its edges) to represent the [traffic analysis zone (TAZ)](https://tmg.utoronto.ca/files/Reports/Traffic-Zone-Guidance_March-2021_Final.pdf).
 
 First of all, we need to import *Bus Stop Location* from LTA DataMall.
 
@@ -84,7 +84,7 @@ sz = st_read(dsn = "./data/geospatial",
 Then we can Derive an analytical hexagon data of 325m.
 
 ```{r}
-hexagon <- st_sf(geometry = st_make_grid(busstop, cellsize = c(325,325), what = "polygons",square = FALSE)) %>%
+hexagon <- st_sf(geometry = st_make_grid(busstop, cellsize = c(375,375), what = "polygons",square = FALSE)) %>%
   mutate(id = row_number()) %>% 
   st_transform(crs = 3414) 
 ```
@@ -134,21 +134,25 @@ peak_trips <- bind_rows(
   odbus %>%
   filter(DAY_TYPE == "WEEKDAY") %>%
   filter(TIME_PER_HOUR >= 6 &
-           TIME_PER_HOUR <= 9),
+           TIME_PER_HOUR <= 9) %>%
+    mutate(interval = "weekdayam"),
   odbus %>%
   filter(DAY_TYPE == "WEEKDAY") %>%
   filter(TIME_PER_HOUR >= 17 &
-           TIME_PER_HOUR <= 20),
+           TIME_PER_HOUR <= 20) %>%
+    mutate(interval = "weekdaypm"),
   odbus %>%
   filter(DAY_TYPE == "WEEKENDS/HOLIDAY") %>%
   filter(TIME_PER_HOUR >= 11 &
-           TIME_PER_HOUR <= 14),
+           TIME_PER_HOUR <= 14) %>%
+    mutate(interval = "weekendam"),
   odbus %>%
   filter(DAY_TYPE == "WEEKENDS/HOLIDAY") %>%
   filter(TIME_PER_HOUR >= 16 &
-           TIME_PER_HOUR <= 19)) %>%
-  group_by(ORIGIN_PT_CODE, DESTINATION_PT_CODE) %>%
-  summarise(TRIPS = sum(TOTAL_TRIPS)) 
+           TIME_PER_HOUR <= 19) %>%
+    mutate(interval = "weekendpm")) %>%
+  group_by(ORIGIN_PT_CODE, DESTINATION_PT_CODE, interval) %>%
+  reframe(TRIPS = sum(TOTAL_TRIPS)) 
 
 glimpse(peak_trips)
 ```
@@ -156,13 +160,12 @@ glimpse(peak_trips)
 Check any bus stops not in our origin 'bus_hex' list.
 
 ```{r}
+#| eval: false
 peak_trips %>%
   filter(! ORIGIN_PT_CODE %in% bus_hex$'BUS_STOP_N') %>%
   group_by(ORIGIN_PT_CODE) %>%
-  summarise(TRIPS = sum(TRIPS))
+  reframe(TRIPS = sum(TRIPS))
 ```
-
-59009
 
 Exclude any bus stops not included in 'bus_hex' data before continue.
 
@@ -185,7 +188,10 @@ peak_trips %>%
 After that, we need to combine those passenger trip data with geospatial data by origin bus stops.
 
 ```{r}
-peaktrip_hex <- left_join(peak_trips,bus_hex %>% select(BUS_STOP_N, geometry), 
+peaktrip_hex <- left_join(peak_trips %>% 
+                            group_by(ORIGIN_PT_CODE, DESTINATION_PT_CODE) %>%
+                            reframe(TRIPS = sum(TRIPS)),
+                          bus_hex %>% select(BUS_STOP_N, geometry), 
                           by = c("ORIGIN_PT_CODE" = "BUS_STOP_N"))  %>%
   rename(ORIGIN_BS = ORIGIN_PT_CODE,
          DESTIN_BS = DESTINATION_PT_CODE) 
@@ -247,7 +253,7 @@ peaktrip_flow <- od2line(flow = peaktrip_hex,
 summary(peaktrip_flow)
 ```
 
-Till now, we can plot out the bus trip flow during Oct peak hours.
+Till now, we can plot out the bus trip flow during all 4 peak time intervals in total.
 
 ```{r}
 tm_shape(sz) +
@@ -263,19 +269,235 @@ tm_shape() +
            alpha = 0.5)
 ```
 
-::: callout-important
+And we can visualize 4 peak time intervals in facets style to check any difference within.
+
+First need to wrangling the data to put trips data of different time intervals into different columns.
+
+```{r}
+peak_interval_trips <- peak_trips %>%
+  pivot_wider(names_from = interval, 
+              values_from = TRIPS, 
+              values_fill = 0)
+
+peak_interval_hex <- left_join(peak_interval_trips,
+                          bus_hex %>% select(BUS_STOP_N, geometry), 
+                          by = c("ORIGIN_PT_CODE" = "BUS_STOP_N"))  %>%
+  rename(ORIGIN_BS = ORIGIN_PT_CODE,
+         DESTIN_BS = DESTINATION_PT_CODE) 
+
+
+peak_interval_hex <- left_join(peak_interval_hex, bus_hex %>% select(BUS_STOP_N, geometry), 
+                          by = c("DESTIN_BS" = "BUS_STOP_N"),
+                          suffix = c(".origin", ".destin")) 
+```
+
+Before we continue, we can check duplication and save the result as a rds file.
+
+```{r}
+#| eval: false
+peak_interval_hex %>%
+  group_by_all() %>%
+  filter(n()>1) %>%
+  ungroup()
+```
+
+```{r}
+#| eval: false
+write_rds(peak_interval_hex, "./data/rds/peak_interval_hex.rds")
+```
+
+Then we can create flow lines.
+
+```{r}
+peak_interval_flow <- od2line(flow = peak_interval_hex, 
+                    zones = bus_hex,
+                    zone_code = "BUS_STOP_N")
+
+summary(peak_interval_flow)
+```
+
+Then we can plot out 4 peak intervals in facets.
+
+```{r}
+#| fig-width: 10
+#| fig-height: 10
+weekdayam_plot <- tm_shape(sz) +
+  tmap_options(check.and.fix = TRUE) +
+  tm_polygons() +
+peak_interval_flow %>% 
+  filter(weekdayam >= 5000) %>%
+tm_shape() +
+  tm_lines(lwd = "weekdayam",
+           style = "quantile",
+           scale = c(0.1, 1, 3, 5, 7, 10),
+           n = 6,
+           alpha = 0.5) +
+  tm_layout(main.title = "Trips during Weekday 6am till 9am",
+            main.title.size = 1.2)
+
+weekdaypm_plot <- tm_shape(sz) +
+  tmap_options(check.and.fix = TRUE) +
+  tm_polygons() +
+peak_interval_flow %>% 
+  filter(weekdaypm >= 5000) %>%
+tm_shape() +
+  tm_lines(lwd = "weekdaypm",
+           style = "quantile",
+           scale = c(0.1, 1, 3, 5, 7, 10),
+           n = 6,
+           alpha = 0.5) +
+  tm_layout(main.title = "Trips during Weekday 5pm till 8pm",
+            main.title.size = 1.2)
+
+weekendam_plot <- tm_shape(sz) +
+  tmap_options(check.and.fix = TRUE) +
+  tm_polygons() +
+peak_interval_flow %>% 
+  filter(weekendam >= 2000) %>%
+tm_shape() +
+  tm_lines(lwd = "weekendam",
+           style = "quantile",
+           scale = c(0.1, 1, 3, 5, 7, 10),
+           n = 6,
+           alpha = 0.5) +
+  tm_layout(main.title = "Trips during Weekend/Holiday 11am till 2pm",
+            main.title.size = 1.2)
+
+weekendpm_plot <- tm_shape(sz) +
+  tmap_options(check.and.fix = TRUE) +
+  tm_polygons() +
+peak_interval_flow %>% 
+  filter(weekendpm >= 2000) %>%
+tm_shape() +
+  tm_lines(lwd = "weekendpm",
+           style = "quantile",
+           scale = c(0.1, 1, 3, 5, 7, 10),
+           n = 6,
+           alpha = 0.5) +
+  tm_layout(main.title = "Trips during Weekend/Holiday 4pm till 7pm",
+            main.title.size = 1.2)
+
+tmap_arrange(weekdayam_plot, weekdaypm_plot, weekendam_plot, weekendpm_plot, asp=1, ncol=2,
+             outer.margins = 0)
+```
+
+::: callout-note
 **Observations:**
 
-Describe the spatial patterns revealed by the geovisualisation (not more than 100 words per visual)
+Describe the spatial patterns revealed by the geo-visualization (not more than 100 words per visual)
+
+**try to add a facet graph for each time interval.**
 :::
 
 #### 4.1.4 Propulsive and Attractiveness variables
 
-Assemble at least three propulsive and three attractiveness variables by using aspatial and geospatial from publicly available sources.
+Firstly import all those propulsive and Attractiveness variables.
+
+```{r}
+business = st_read(dsn = "./data/geospatial",
+                   layer = "Business")  %>% st_transform(crs = 3414) 
+
+entertn = st_read(dsn = "./data/geospatial",
+                   layer = "entertn")  %>% st_transform(crs = 3414) 
+
+food = st_read(dsn = "./data/geospatial",
+                   layer = "F&B")  %>% st_transform(crs = 3414) 
+
+finance = st_read(dsn = "./data/geospatial",
+                   layer = "FinServ")  %>% st_transform(crs = 3414) 
+
+leisure = st_read(dsn = "./data/geospatial",
+                   layer = "Leisure&Recreation")  %>% st_transform(crs = 3414) 
+
+retail = st_read(dsn = "./data/geospatial",
+                   layer = "Retails")  %>% st_transform(crs = 3414) 
+```
+
+Then we can assemble all those variables by using st_join.
+
+```{r}
+# use intersect of goemetry, count POI_NAME
+factors <- st_join(retail %>% select(POI_NAME, geometry), 
+                   business %>% select(POI_NAME, geometry), 
+                   join = st_nearest_feature,
+                   suffix = c("_retail", "_business")) %>% 
+  st_join(finance %>% select(POI_NAME, geometry) %>% rename(finance = POI_NAME),
+          join = st_nearest_feature) %>% 
+  st_join(food %>% select(POI_NAME, geometry) %>% rename(food = POI_NAME),
+          join = st_nearest_feature) %>% 
+  st_join(leisure %>% select(POI_NAME, geometry) %>% rename(leisure = POI_NAME),
+          join = st_nearest_feature) %>% 
+  st_join(entertn %>% select(POI_NAME, geometry) %>% rename(entertn = POI_NAME),
+          join = st_nearest_feature) %>% 
+  group_by(geometry) %>%
+  reframe(retail_poi = row_number(POI_NAME_retail),
+          business_poi = row_number(POI_NAME_business),
+          finance_poi = row_number(finance),
+          food_poi = row_number(food),
+          leisure_poi = row_number(leisure),
+          entertn_poi = row_number(entertn)) 
+```
+
+Check summary of assembled factors before continue.
+
+```{r}
+summary(factors)
+```
+
+::: callout-important
+-   Since left = TRUE is default in st_join, so here I will join those variables in the sequence of number of observations, which is, retail \<- business \<- finance \<- food \<- leisure \<- entertain.
+
+-   And to avoid NA count in some variable, I will set the "join = st_nearest_feature" instead of default "st_intersect".
+:::
 
 #### 4.1.5 Distance Matrix
 
-Compute a distance matrix by using the analytical hexagon data derived earlier.
+I will focus on weekend/holiday evening peak time interval for further analysis.
+
+```{r}
+weekendpm_trips <- odbus %>%
+  filter(DAY_TYPE == "WEEKENDS/HOLIDAY") %>%
+  filter(TIME_PER_HOUR >= 16 &
+           TIME_PER_HOUR <= 19) %>%
+  group_by(ORIGIN_PT_CODE, DESTINATION_PT_CODE) %>%
+  reframe(TRIPS = sum(TOTAL_TRIPS))
+ 
+weekendpm_trips <- weekendpm_trips %>%
+  filter(ORIGIN_PT_CODE %in% bus_hex$'BUS_STOP_N') %>%
+  filter(DESTINATION_PT_CODE %in% bus_hex$'BUS_STOP_N')
+
+weekendpm_hex <- left_join(weekendpm_trips,bus_hex %>% select(BUS_STOP_N, geometry), 
+                          by = c("ORIGIN_PT_CODE" = "BUS_STOP_N"))  %>%
+  rename(ORIGIN_BS = ORIGIN_PT_CODE,
+         DESTIN_BS = DESTINATION_PT_CODE) 
+
+weekendpm_hex <- left_join(weekendpm_hex, bus_hex %>% select(BUS_STOP_N, geometry), 
+                          by = c("DESTIN_BS" = "BUS_STOP_N"),
+                          suffix = c(".origin", ".destin")) 
+```
+
+Create flow lines for those trips data.
+
+```{r}
+weekendpm_flow <- od2line(flow = weekendpm_hex, 
+                    zones = bus_hex,
+                    zone_code = "BUS_STOP_N")
+
+summary(weekendpm_flow)
+```
+
+Then we need to convert it to **Spatial Polygons Data Frame.**
+
+```{r}
+#weekendpm_sp <- as(weekendpm_hex, "Spatial")
+#weekendpm_sp
+```
+
+Then we can compute distance matrix.
+
+```{r}
+
+```
 
 ### **4.2 Spatial Interaction Modelling**
 
@@ -285,10 +507,10 @@ Calibrate spatial interactive models to determine factors affecting urban commut
 
 #### 4.2.2 Visualizing Modelling results
 
-Present the modelling results by using appropriate geovisualisation and graphical visualisation methods.
+Present the modelling results by using appropriate geovisualization and graphical visualization methods.
 
 ::: callout-important
 **Observations:**
 
--   With reference to the Spatial Interaction Model output tables, maps and data visualisation prepared, describe the modelling results
+-   With reference to the Spatial Interaction Model output tables, maps and data visualization prepared, describe the modelling results
 :::
