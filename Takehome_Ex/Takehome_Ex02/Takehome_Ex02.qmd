@@ -55,7 +55,7 @@ Those specially collected data aim to use within this excercise content only, if
 For starting, load needing packages.
 
 ```{r}
-pacman::p_load(sf, spdep, tmap, tidyverse, sfdep, stplanr, reshape2, ggpubr, DT)
+pacman::p_load(sf, sp, spdep, tmap, tidyverse, sfdep, stplanr, reshape2, ggpubr, DT)
 ```
 
 ## **4 The Task**
@@ -385,8 +385,6 @@ tmap_arrange(weekdayam_plot, weekdaypm_plot, weekendam_plot, weekendpm_plot, asp
 **Observations:**
 
 Describe the spatial patterns revealed by the geo-visualization (not more than 100 words per visual)
-
-**try to add a facet graph for each time interval.**
 :::
 
 #### 4.1.4 Propulsive and Attractiveness variables
@@ -452,7 +450,26 @@ summary(factors)
 
 #### 4.1.5 Distance Matrix
 
-I will focus on weekend/holiday evening peak time interval for further analysis.
+First we need to convert the bus_hex we have generated into **Spatial Polygons Data Frame.**
+
+```{r}
+bus_sp <- as(bus_hex, "Spatial")
+bus_sp
+```
+
+Then we can compute distance matrix of our bus stops hexagons.
+
+```{r}
+dist <- spDists(bus_sp, 
+                longlat = FALSE)
+head(dist, n=c(5, 5))
+```
+
+### **4.2 Spatial Interaction Modelling**
+
+#### 4.2.1 Spatial Interactive model
+
+For this part, I will focus on weekend/holiday evening peak time interval for further analysis.
 
 ```{r}
 weekendpm_trips <- odbus %>%
@@ -485,25 +502,6 @@ weekendpm_flow <- od2line(flow = weekendpm_hex,
 
 summary(weekendpm_flow)
 ```
-
-Then we need to convert it to **Spatial Polygons Data Frame.**
-
-```{r}
-#weekendpm_sp <- as(weekendpm_hex, "Spatial")
-#weekendpm_sp
-```
-
-Then we can compute distance matrix.
-
-```{r}
-
-```
-
-### **4.2 Spatial Interaction Modelling**
-
-#### 4.2.1 Spatial Interactive model
-
-Calibrate spatial interactive models to determine factors affecting urban commuting flows at the selected time interval.
 
 #### 4.2.2 Visualizing Modelling results
 
