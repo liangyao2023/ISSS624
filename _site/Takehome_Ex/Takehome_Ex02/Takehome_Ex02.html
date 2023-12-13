@@ -301,7 +301,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">December 12, 2023</p>
+      <p class="date-modified">December 13, 2023</p>
     </div>
   </div>
     
@@ -407,7 +407,7 @@ Bounding box:  xmin: 2667.538 ymin: 15748.72 xmax: 56396.44 ymax: 50256.33
 Projected CRS: SVY21</code></pre>
 </div>
 </div>
-<p>Then we can Derive an analytical hexagon data of 325m.</p>
+<p>Then we can Derive an analytical hexagon data of 375m.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -909,49 +909,71 @@ Projected CRS: SVY21 / Singapore TM</code></pre>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># use intersect of goemetry, count POI_NAME</span></span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>factors <span class="ot">&lt;-</span> <span class="fu">st_join</span>(retail <span class="sc">%&gt;%</span> <span class="fu">select</span>(POI_NAME, geometry), </span>
-<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>                   business <span class="sc">%&gt;%</span> <span class="fu">select</span>(POI_NAME, geometry), </span>
-<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">join =</span> st_nearest_feature,</span>
-<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">suffix =</span> <span class="fu">c</span>(<span class="st">"_retail"</span>, <span class="st">"_business"</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_join</span>(finance <span class="sc">%&gt;%</span> <span class="fu">select</span>(POI_NAME, geometry) <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">finance =</span> POI_NAME),</span>
-<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">join =</span> st_nearest_feature) <span class="sc">%&gt;%</span> </span>
-<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_join</span>(food <span class="sc">%&gt;%</span> <span class="fu">select</span>(POI_NAME, geometry) <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">food =</span> POI_NAME),</span>
-<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>          <span class="at">join =</span> st_nearest_feature) <span class="sc">%&gt;%</span> </span>
-<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_join</span>(leisure <span class="sc">%&gt;%</span> <span class="fu">select</span>(POI_NAME, geometry) <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">leisure =</span> POI_NAME),</span>
-<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>          <span class="at">join =</span> st_nearest_feature) <span class="sc">%&gt;%</span> </span>
-<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_join</span>(entertn <span class="sc">%&gt;%</span> <span class="fu">select</span>(POI_NAME, geometry) <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">entertn =</span> POI_NAME),</span>
-<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>          <span class="at">join =</span> st_nearest_feature) <span class="sc">%&gt;%</span> </span>
-<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(geometry) <span class="sc">%&gt;%</span></span>
-<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reframe</span>(<span class="at">retail_poi =</span> <span class="fu">row_number</span>(POI_NAME_retail),</span>
-<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a>          <span class="at">business_poi =</span> <span class="fu">row_number</span>(POI_NAME_business),</span>
-<span id="cb43-17"><a href="#cb43-17" aria-hidden="true" tabindex="-1"></a>          <span class="at">finance_poi =</span> <span class="fu">row_number</span>(finance),</span>
-<span id="cb43-18"><a href="#cb43-18" aria-hidden="true" tabindex="-1"></a>          <span class="at">food_poi =</span> <span class="fu">row_number</span>(food),</span>
-<span id="cb43-19"><a href="#cb43-19" aria-hidden="true" tabindex="-1"></a>          <span class="at">leisure_poi =</span> <span class="fu">row_number</span>(leisure),</span>
-<span id="cb43-20"><a href="#cb43-20" aria-hidden="true" tabindex="-1"></a>          <span class="at">entertn_poi =</span> <span class="fu">row_number</span>(entertn)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>factors <span class="ot">&lt;-</span> <span class="fu">st_join</span>(retail <span class="sc">%&gt;%</span> <span class="fu">select</span>(POI_NAME, geometry), </span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>                   business <span class="sc">%&gt;%</span> <span class="fu">select</span>(POI_NAME, geometry), </span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">join =</span> st_nearest_feature,</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">suffix =</span> <span class="fu">c</span>(<span class="st">"_retail"</span>, <span class="st">"_business"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_join</span>(finance <span class="sc">%&gt;%</span> <span class="fu">select</span>(POI_NAME, geometry) <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">finance =</span> POI_NAME),</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">join =</span> st_nearest_feature) <span class="sc">%&gt;%</span> </span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_join</span>(food <span class="sc">%&gt;%</span> <span class="fu">select</span>(POI_NAME, geometry) <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">food =</span> POI_NAME),</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">join =</span> st_nearest_feature) <span class="sc">%&gt;%</span> </span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_join</span>(leisure <span class="sc">%&gt;%</span> <span class="fu">select</span>(POI_NAME, geometry) <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">leisure =</span> POI_NAME),</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">join =</span> st_nearest_feature) <span class="sc">%&gt;%</span> </span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_join</span>(entertn <span class="sc">%&gt;%</span> <span class="fu">select</span>(POI_NAME, geometry) <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">entertn =</span> POI_NAME),</span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>          <span class="at">join =</span> st_nearest_feature) <span class="sc">%&gt;%</span></span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_join</span>(bus_hex<span class="sc">%&gt;%</span><span class="fu">select</span>(BUS_STOP_N, geometry), <span class="at">join =</span> st_nearest_feature)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Then we need to count the point of each variable around each bus stop.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>factor_count <span class="ot">&lt;-</span> </span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aggregate</span>(POI_NAME_retail <span class="sc">~</span> BUS_STOP_N, <span class="at">data =</span> factors, <span class="cf">function</span>(x) <span class="fu">length</span>(<span class="fu">unique</span>(x))) <span class="sc">%&gt;%</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">retail_poi =</span> POI_NAME_retail) <span class="sc">%&gt;%</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aggregate</span>(POI_NAME_business <span class="sc">~</span> BUS_STOP_N, <span class="at">data =</span> factors, <span class="cf">function</span>(x) <span class="fu">length</span>(<span class="fu">unique</span>(x))) <span class="sc">%&gt;%</span></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">business_poi =</span> POI_NAME_business),</span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">join_by</span>(BUS_STOP_N)) <span class="sc">%&gt;%</span></span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aggregate</span>(finance <span class="sc">~</span> BUS_STOP_N, <span class="at">data =</span> factors, <span class="cf">function</span>(x) <span class="fu">length</span>(<span class="fu">unique</span>(x))) <span class="sc">%&gt;%</span></span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">finance_poi =</span> finance),</span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">join_by</span>(BUS_STOP_N)) <span class="sc">%&gt;%</span></span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aggregate</span>(food <span class="sc">~</span> BUS_STOP_N, <span class="at">data =</span> factors, <span class="cf">function</span>(x) <span class="fu">length</span>(<span class="fu">unique</span>(x))) <span class="sc">%&gt;%</span></span>
+<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">food_poi =</span> food),</span>
+<span id="cb44-15"><a href="#cb44-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">join_by</span>(BUS_STOP_N)) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-16"><a href="#cb44-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
+<span id="cb44-17"><a href="#cb44-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aggregate</span>(leisure <span class="sc">~</span> BUS_STOP_N, <span class="at">data =</span> factors, <span class="cf">function</span>(x) <span class="fu">length</span>(<span class="fu">unique</span>(x))) <span class="sc">%&gt;%</span></span>
+<span id="cb44-18"><a href="#cb44-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">leisure_poi =</span> leisure),</span>
+<span id="cb44-19"><a href="#cb44-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">join_by</span>(BUS_STOP_N)) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-20"><a href="#cb44-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
+<span id="cb44-21"><a href="#cb44-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aggregate</span>(entertn <span class="sc">~</span> BUS_STOP_N, <span class="at">data =</span> factors, <span class="cf">function</span>(x) <span class="fu">length</span>(<span class="fu">unique</span>(x))) <span class="sc">%&gt;%</span></span>
+<span id="cb44-22"><a href="#cb44-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">entertn_poi =</span> entertn),</span>
+<span id="cb44-23"><a href="#cb44-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">join_by</span>(BUS_STOP_N)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Check summary of assembled factors before continue.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(factors)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(factor_count)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>          geometry       retail_poi      business_poi     finance_poi    
- POINT        :37635   Min.   :  1.00   Min.   :  1.00   Min.   :  1.00  
- epsg:3414    :    0   1st Qu.:  1.00   1st Qu.:  1.00   1st Qu.:  1.00  
- +proj=tmer...:    0   Median :  5.00   Median :  5.00   Median :  5.00  
-                       Mean   : 21.97   Mean   : 21.97   Mean   : 21.97  
-                       3rd Qu.: 21.00   3rd Qu.: 21.00   3rd Qu.: 21.00  
-                       Max.   :318.00   Max.   :318.00   Max.   :318.00  
-    food_poi       leisure_poi      entertn_poi    
- Min.   :  1.00   Min.   :  1.00   Min.   :  1.00  
- 1st Qu.:  1.00   1st Qu.:  1.00   1st Qu.:  1.00  
- Median :  5.00   Median :  5.00   Median :  5.00  
- Mean   : 21.97   Mean   : 21.97   Mean   : 21.97  
- 3rd Qu.: 21.00   3rd Qu.: 21.00   3rd Qu.: 21.00  
- Max.   :318.00   Max.   :318.00   Max.   :318.00  </code></pre>
+<pre><code>  BUS_STOP_N          retail_poi      business_poi     finance_poi    
+ Length:1661        Min.   :  1.00   Min.   : 1.000   Min.   : 1.000  
+ Class :character   1st Qu.:  2.00   1st Qu.: 1.000   1st Qu.: 1.000  
+ Mode  :character   Median :  5.00   Median : 1.000   Median : 1.000  
+                    Mean   : 22.12   Mean   : 2.198   Mean   : 1.745  
+                    3rd Qu.: 18.00   3rd Qu.: 2.000   3rd Qu.: 2.000  
+                    Max.   :889.00   Max.   :27.000   Max.   :16.000  
+    food_poi       leisure_poi      entertn_poi   
+ Min.   : 1.000   Min.   : 1.000   Min.   :1.000  
+ 1st Qu.: 1.000   1st Qu.: 1.000   1st Qu.:1.000  
+ Median : 1.000   Median : 1.000   Median :1.000  
+ Mean   : 1.703   Mean   : 1.565   Mean   :1.139  
+ 3rd Qu.: 2.000   3rd Qu.: 2.000   3rd Qu.:1.000  
+ Max.   :37.000   Max.   :17.000   Max.   :6.000  </code></pre>
 </div>
 </div>
 <div class="callout callout-style-default callout-important callout-titled">
@@ -977,8 +999,8 @@ Important
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>bus_sp <span class="ot">&lt;-</span> <span class="fu">as</span>(bus_hex, <span class="st">"Spatial"</span>)</span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>bus_sp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>bus_sp <span class="ot">&lt;-</span> <span class="fu">as</span>(bus_hex, <span class="st">"Spatial"</span>)</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>bus_sp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>class       : SpatialPolygonsDataFrame 
@@ -991,13 +1013,13 @@ min values  :    3,      01012,        1,          1, ADMIRALTY,    AMSZ02,     
 max values  : 9888,      99189,      323,         17,    YUNNAN,    YSSZ09,      Y,     YISHUN,         YS,    WEST REGION,       WR, FF2AA0D68743AE28,      16409, 49502.4866, 49482.5953, ... </code></pre>
 </div>
 </div>
-<p>Then we can compute distance matrix of our bus stops hexagons.</p>
+<p>Then we can compute distance matrix of our bus stops hexagons and check the head 5.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>dist <span class="ot">&lt;-</span> <span class="fu">spDists</span>(bus_sp, </span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">longlat =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dist, <span class="at">n=</span><span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>dist <span class="ot">&lt;-</span> <span class="fu">spDists</span>(bus_sp, </span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">longlat =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dist, <span class="at">n=</span><span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>          [,1]      [,2]      [,3]      [,4]      [,5]
@@ -1007,6 +1029,65 @@ max values  : 9888,      99189,      323,         17,    YUNNAN,    YSSZ09,     
 [4,] 3333.0729 2598.0762  649.5191    0.0000 2928.8436
 [5,]  992.1567  375.0000 2281.0359 2928.8436    0.0000</code></pre>
 </div>
+</div>
+<p>Then we can label the bus stops and convert it to pair-distance.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>busstop_N <span class="ot">&lt;-</span> bus_hex<span class="sc">$</span>BUS_STOP_N</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(dist) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(busstop_N)</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(dist) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(busstop_N)</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>distPair <span class="ot">&lt;-</span> <span class="fu">melt</span>(dist) <span class="sc">%&gt;%</span></span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">dist =</span> value,</span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">orig =</span> Var1,</span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">dest =</span> Var2) <span class="sc">%&gt;%</span></span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(orig <span class="sc">!=</span> dest) <span class="sc">%&gt;%</span></span>
+<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">orig =</span> <span class="fu">as.character</span>(orig),</span>
+<span id="cb51-12"><a href="#cb51-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">dest =</span> <span class="fu">as.character</span>(dest))</span>
+<span id="cb51-13"><a href="#cb51-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-14"><a href="#cb51-14" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(distPair, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>    orig  dest      dist
+1  25751 25059  992.1567
+2  26379 25059 2704.1635
+3  26369 25059 3333.0729
+4  25761 25059  992.1567
+5  26389 25059 2459.0394
+6  25719 25059 2250.0000
+7  25711 25059 2250.0000
+8  26299 25059 4056.2452
+9  25741 25059 1634.5871
+10 25729 25059 2087.9116</code></pre>
+</div>
+</div>
+<p>Let’s give a constant distance of 50m to intra-hexagon bus stops pairs before continue.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>distPair<span class="sc">$</span>dist <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(distPair<span class="sc">$</span>dist <span class="sc">==</span> <span class="dv">0</span>,</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>                        <span class="dv">50</span>, distPair<span class="sc">$</span>dist)</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(distPair)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>     orig               dest                dist      
+ Length:26414460    Length:26414460    Min.   :   50  
+ Class :character   Class :character   1st Qu.: 7803  
+ Mode  :character   Mode  :character   Median :12667  
+                                       Mean   :13299  
+                                       3rd Qu.:17863  
+                                       Max.   :44926  </code></pre>
+</div>
+</div>
+<p>Save the output of pairwise distance as rds file.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(distPair, <span class="st">"./data/rds/distPair.rds"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 </section>
 </section>
@@ -1018,36 +1099,36 @@ max values  : 9888,      99189,      323,         17,    YUNNAN,    YSSZ09,     
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>weekendpm_trips <span class="ot">&lt;-</span> odbus <span class="sc">%&gt;%</span></span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(DAY_TYPE <span class="sc">==</span> <span class="st">"WEEKENDS/HOLIDAY"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(TIME_PER_HOUR <span class="sc">&gt;=</span> <span class="dv">16</span> <span class="sc">&amp;</span></span>
-<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>           TIME_PER_HOUR <span class="sc">&lt;=</span> <span class="dv">19</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ORIGIN_PT_CODE, DESTINATION_PT_CODE) <span class="sc">%&gt;%</span></span>
-<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reframe</span>(<span class="at">TRIPS =</span> <span class="fu">sum</span>(TOTAL_TRIPS))</span>
-<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>weekendpm_trips <span class="ot">&lt;-</span> weekendpm_trips <span class="sc">%&gt;%</span></span>
-<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ORIGIN_PT_CODE <span class="sc">%in%</span> bus_hex<span class="sc">$</span><span class="st">'BUS_STOP_N'</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(DESTINATION_PT_CODE <span class="sc">%in%</span> bus_hex<span class="sc">$</span><span class="st">'BUS_STOP_N'</span>)</span>
-<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-12"><a href="#cb50-12" aria-hidden="true" tabindex="-1"></a>weekendpm_hex <span class="ot">&lt;-</span> <span class="fu">left_join</span>(weekendpm_trips,bus_hex <span class="sc">%&gt;%</span> <span class="fu">select</span>(BUS_STOP_N, geometry), </span>
-<span id="cb50-13"><a href="#cb50-13" aria-hidden="true" tabindex="-1"></a>                          <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"ORIGIN_PT_CODE"</span> <span class="ot">=</span> <span class="st">"BUS_STOP_N"</span>))  <span class="sc">%&gt;%</span></span>
-<span id="cb50-14"><a href="#cb50-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">ORIGIN_BS =</span> ORIGIN_PT_CODE,</span>
-<span id="cb50-15"><a href="#cb50-15" aria-hidden="true" tabindex="-1"></a>         <span class="at">DESTIN_BS =</span> DESTINATION_PT_CODE) </span>
-<span id="cb50-16"><a href="#cb50-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-17"><a href="#cb50-17" aria-hidden="true" tabindex="-1"></a>weekendpm_hex <span class="ot">&lt;-</span> <span class="fu">left_join</span>(weekendpm_hex, bus_hex <span class="sc">%&gt;%</span> <span class="fu">select</span>(BUS_STOP_N, geometry), </span>
-<span id="cb50-18"><a href="#cb50-18" aria-hidden="true" tabindex="-1"></a>                          <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"DESTIN_BS"</span> <span class="ot">=</span> <span class="st">"BUS_STOP_N"</span>),</span>
-<span id="cb50-19"><a href="#cb50-19" aria-hidden="true" tabindex="-1"></a>                          <span class="at">suffix =</span> <span class="fu">c</span>(<span class="st">".origin"</span>, <span class="st">".destin"</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>weekendpm_trips <span class="ot">&lt;-</span> odbus <span class="sc">%&gt;%</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(DAY_TYPE <span class="sc">==</span> <span class="st">"WEEKENDS/HOLIDAY"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(TIME_PER_HOUR <span class="sc">&gt;=</span> <span class="dv">16</span> <span class="sc">&amp;</span></span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>           TIME_PER_HOUR <span class="sc">&lt;=</span> <span class="dv">19</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ORIGIN_PT_CODE, DESTINATION_PT_CODE) <span class="sc">%&gt;%</span></span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reframe</span>(<span class="at">TRIPS =</span> <span class="fu">sum</span>(TOTAL_TRIPS))</span>
+<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb56-8"><a href="#cb56-8" aria-hidden="true" tabindex="-1"></a>weekendpm_trips <span class="ot">&lt;-</span> weekendpm_trips <span class="sc">%&gt;%</span></span>
+<span id="cb56-9"><a href="#cb56-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ORIGIN_PT_CODE <span class="sc">%in%</span> bus_hex<span class="sc">$</span><span class="st">'BUS_STOP_N'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb56-10"><a href="#cb56-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(DESTINATION_PT_CODE <span class="sc">%in%</span> bus_hex<span class="sc">$</span><span class="st">'BUS_STOP_N'</span>)</span>
+<span id="cb56-11"><a href="#cb56-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-12"><a href="#cb56-12" aria-hidden="true" tabindex="-1"></a>weekendpm_hex <span class="ot">&lt;-</span> <span class="fu">left_join</span>(weekendpm_trips,bus_hex <span class="sc">%&gt;%</span> <span class="fu">select</span>(BUS_STOP_N, geometry), </span>
+<span id="cb56-13"><a href="#cb56-13" aria-hidden="true" tabindex="-1"></a>                          <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"ORIGIN_PT_CODE"</span> <span class="ot">=</span> <span class="st">"BUS_STOP_N"</span>))  <span class="sc">%&gt;%</span></span>
+<span id="cb56-14"><a href="#cb56-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">ORIGIN_BS =</span> ORIGIN_PT_CODE,</span>
+<span id="cb56-15"><a href="#cb56-15" aria-hidden="true" tabindex="-1"></a>         <span class="at">DESTIN_BS =</span> DESTINATION_PT_CODE) </span>
+<span id="cb56-16"><a href="#cb56-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-17"><a href="#cb56-17" aria-hidden="true" tabindex="-1"></a>weekendpm_hex <span class="ot">&lt;-</span> <span class="fu">left_join</span>(weekendpm_hex, bus_hex <span class="sc">%&gt;%</span> <span class="fu">select</span>(BUS_STOP_N, geometry), </span>
+<span id="cb56-18"><a href="#cb56-18" aria-hidden="true" tabindex="-1"></a>                          <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"DESTIN_BS"</span> <span class="ot">=</span> <span class="st">"BUS_STOP_N"</span>),</span>
+<span id="cb56-19"><a href="#cb56-19" aria-hidden="true" tabindex="-1"></a>                          <span class="at">suffix =</span> <span class="fu">c</span>(<span class="st">".origin"</span>, <span class="st">".destin"</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Create flow lines for those trips data.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>weekendpm_flow <span class="ot">&lt;-</span> <span class="fu">od2line</span>(<span class="at">flow =</span> weekendpm_hex, </span>
-<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">zones =</span> bus_hex,</span>
-<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">zone_code =</span> <span class="st">"BUS_STOP_N"</span>)</span>
-<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(weekendpm_flow)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>weekendpm_flow <span class="ot">&lt;-</span> <span class="fu">od2line</span>(<span class="at">flow =</span> weekendpm_hex, </span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">zones =</span> bus_hex,</span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">zone_code =</span> <span class="st">"BUS_STOP_N"</span>) </span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(weekendpm_flow)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>  ORIGIN_BS          DESTIN_BS             TRIPS         
@@ -1066,17 +1147,60 @@ max values  : 9888,      99189,      323,         17,    YUNNAN,    YSSZ09,     
                                                                      </code></pre>
 </div>
 </div>
+<p>To ensure, let’s check any case of origin == destination before continue.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>weekendpm_flow <span class="sc">%&gt;%</span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ORIGIN_BS <span class="sc">==</span> DESTIN_BS)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 0 features and 3 fields
+Active geometry column: geometry
+Bounding box:  xmin: NA ymin: NA xmax: NA ymax: NA
+Projected CRS: SVY21 / Singapore TM
+[1] ORIGIN_BS       DESTIN_BS       TRIPS           geometry.origin
+[5] geometry.destin geometry       
+&lt;0 rows&gt; (or 0-length row.names)</code></pre>
+</div>
+</div>
+<p>Then we can join the flow data with pairwise distance.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>weekendpm_flow <span class="ot">&lt;-</span> weekendpm_flow <span class="sc">%&gt;%</span></span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span> (distPair,</span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"ORIGIN_BS"</span> <span class="ot">=</span> <span class="st">"orig"</span>,</span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"DESTIN_BS"</span> <span class="ot">=</span> <span class="st">"dest"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>weekendpm_flow <span class="sc">%&gt;%</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(dist <span class="sc">!=</span> <span class="cn">NA</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 0 features and 4 fields
+Active geometry column: geometry
+Bounding box:  xmin: NA ymin: NA xmax: NA ymax: NA
+Projected CRS: SVY21 / Singapore TM
+[1] ORIGIN_BS       DESTIN_BS       TRIPS           dist           
+[5] geometry.origin geometry.destin geometry       
+&lt;0 rows&gt; (or 0-length row.names)</code></pre>
+</div>
+</div>
 </section>
 <section id="visualizing-modelling-results" class="level4">
 <h4 class="anchored" data-anchor-id="visualizing-modelling-results">4.2.2 Visualizing Modelling results</h4>
 <p>Present the modelling results by using appropriate geovisualization and graphical visualization methods.</p>
-<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Important
+Note
 </div>
 </div>
 <div class="callout-body-container callout-body">

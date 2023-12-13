@@ -81,7 +81,7 @@ sz = st_read(dsn = "./data/geospatial",
                    layer = "MP14_SUBZONE_WEB_PL")  %>% st_transform(crs = 3414) 
 ```
 
-Then we can Derive an analytical hexagon data of 325m.
+Then we can Derive an analytical hexagon data of 375m.
 
 ```{r}
 hexagon <- st_sf(geometry = st_make_grid(busstop, cellsize = c(375,375), what = "polygons",square = FALSE)) %>%
@@ -414,7 +414,6 @@ retail = st_read(dsn = "./data/geospatial",
 Then we can assemble all those variables by using st_join.
 
 ```{r}
-# use intersect of goemetry, count POI_NAME
 factors <- st_join(retail %>% select(POI_NAME, geometry), 
                    business %>% select(POI_NAME, geometry), 
                    join = st_nearest_feature,
@@ -426,20 +425,42 @@ factors <- st_join(retail %>% select(POI_NAME, geometry),
   st_join(leisure %>% select(POI_NAME, geometry) %>% rename(leisure = POI_NAME),
           join = st_nearest_feature) %>% 
   st_join(entertn %>% select(POI_NAME, geometry) %>% rename(entertn = POI_NAME),
-          join = st_nearest_feature) %>% 
-  group_by(geometry) %>%
-  reframe(retail_poi = row_number(POI_NAME_retail),
-          business_poi = row_number(POI_NAME_business),
-          finance_poi = row_number(finance),
-          food_poi = row_number(food),
-          leisure_poi = row_number(leisure),
-          entertn_poi = row_number(entertn)) 
+          join = st_nearest_feature) %>%
+  st_join(bus_hex%>%select(BUS_STOP_N, geometry), join = st_nearest_feature)
+```
+
+Then we need to count the point of each variable around each bus stop.
+
+```{r}
+factor_count <- 
+  aggregate(POI_NAME_retail ~ BUS_STOP_N, data = factors, function(x) length(unique(x))) %>%
+  rename(retail_poi = POI_NAME_retail) %>%
+  left_join(
+    aggregate(POI_NAME_business ~ BUS_STOP_N, data = factors, function(x) length(unique(x))) %>%
+    rename(business_poi = POI_NAME_business),
+    by = join_by(BUS_STOP_N)) %>%
+  left_join(
+    aggregate(finance ~ BUS_STOP_N, data = factors, function(x) length(unique(x))) %>%
+    rename(finance_poi = finance),
+    by = join_by(BUS_STOP_N)) %>%
+  left_join(
+    aggregate(food ~ BUS_STOP_N, data = factors, function(x) length(unique(x))) %>%
+    rename(food_poi = food),
+    by = join_by(BUS_STOP_N)) %>% 
+  left_join(
+    aggregate(leisure ~ BUS_STOP_N, data = factors, function(x) length(unique(x))) %>%
+    rename(leisure_poi = leisure),
+    by = join_by(BUS_STOP_N)) %>% 
+  left_join(
+    aggregate(entertn ~ BUS_STOP_N, data = factors, function(x) length(unique(x))) %>%
+    rename(entertn_poi = entertn),
+    by = join_by(BUS_STOP_N)) 
 ```
 
 Check summary of assembled factors before continue.
 
 ```{r}
-summary(factors)
+summary(factor_count)
 ```
 
 ::: callout-important
@@ -457,12 +478,47 @@ bus_sp <- as(bus_hex, "Spatial")
 bus_sp
 ```
 
-Then we can compute distance matrix of our bus stops hexagons.
+Then we can compute distance matrix of our bus stops hexagons and check the head 5.
 
 ```{r}
 dist <- spDists(bus_sp, 
                 longlat = FALSE)
 head(dist, n=c(5, 5))
+```
+
+Then we can label the bus stops and convert it to pair-distance.
+
+```{r}
+busstop_N <- bus_hex$BUS_STOP_N
+
+colnames(dist) <- paste0(busstop_N)
+rownames(dist) <- paste0(busstop_N)
+
+distPair <- melt(dist) %>%
+  rename(dist = value,
+         orig = Var1,
+         dest = Var2) %>%
+  filter(orig != dest) %>%
+  mutate(orig = as.character(orig),
+         dest = as.character(dest))
+
+head(distPair, 10)
+```
+
+Let's give a constant distance of 50m to intra-hexagon bus stops pairs before continue.
+
+```{r}
+distPair$dist <- ifelse(distPair$dist == 0,
+                        50, distPair$dist)
+
+summary(distPair)
+```
+
+Save the output of pairwise distance as rds file.
+
+```{r}
+#| eval: false
+write_rds(distPair, "./data/rds/distPair.rds") 
 ```
 
 ### **4.2 Spatial Interaction Modelling**
@@ -498,16 +554,37 @@ Create flow lines for those trips data.
 ```{r}
 weekendpm_flow <- od2line(flow = weekendpm_hex, 
                     zones = bus_hex,
-                    zone_code = "BUS_STOP_N")
+                    zone_code = "BUS_STOP_N") 
 
 summary(weekendpm_flow)
+```
+
+To ensure, let's check any case of origin == destination before continue.
+
+```{r}
+weekendpm_flow %>%
+  filter(ORIGIN_BS == DESTIN_BS)
+```
+
+Then we can join the flow data with pairwise distance.
+
+```{r}
+weekendpm_flow <- weekendpm_flow %>%
+  left_join (distPair,
+             by = c("ORIGIN_BS" = "orig",
+                    "DESTIN_BS" = "dest"))
+```
+
+```{r}
+weekendpm_flow %>%
+  filter(dist != NA)
 ```
 
 #### 4.2.2 Visualizing Modelling results
 
 Present the modelling results by using appropriate geovisualization and graphical visualization methods.
 
-::: callout-important
+::: callout-note
 **Observations:**
 
 -   With reference to the Spatial Interaction Model output tables, maps and data visualization prepared, describe the modelling results
