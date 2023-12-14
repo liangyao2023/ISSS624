@@ -55,7 +55,7 @@ Those specially collected data aim to use within this excercise content only, if
 For starting, load needing packages.
 
 ```{r}
-pacman::p_load(sf, sp, spdep, tmap, tidyverse, sfdep, stplanr, reshape2, ggpubr, DT)
+pacman::p_load(sf, sp, spdep, tmap, tidyverse, sfdep, stplanr, reshape2)
 ```
 
 ## **4 The Task**
@@ -78,31 +78,62 @@ Also import subzone geometry data as our background layer.
 
 ```{r}
 sz = st_read(dsn = "./data/geospatial",
-                   layer = "MP14_SUBZONE_WEB_PL")  %>% st_transform(crs = 3414) 
+                   layer = "MPSZ-2019")  %>% st_transform(crs = 3414) 
 ```
 
 Then we can Derive an analytical hexagon data of 375m.
 
 ```{r}
-hexagon <- st_sf(geometry = st_make_grid(busstop, cellsize = c(375,375), what = "polygons",square = FALSE)) %>%
-  mutate(id = row_number()) %>% 
+hexagon <- st_sf(geometry = st_make_grid(busstop, cellsize = 750, what = "polygons",square = FALSE)) %>%
+  mutate(id = row_number()) %>%
   st_transform(crs = 3414) 
+
+hexagon <- hexagon %>%
+  mutate(N = lengths(st_intersects(hexagon, busstop))) %>% 
+  filter(N>0)
+```
+
+Plot out our bus_hex to check.
+
+```{r}
+tm_shape(sz) +
+  tm_polygons(alpha = 0.3) +
+  tm_borders(alpha = 0.2) +
+tm_shape(hexagon) +
+  tm_fill("N", 
+          style = "quantile", 
+          palette = "Blues",
+          title = "Bus stop counts",
+          colorNA = NULL,
+          showNA = FALSE) +
+  tm_layout(main.title = "Count of Bus Stops at Hexagon Level",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_compass(type="4star", size = 1.5) +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar() +
+  tm_grid(alpha =0.2)
 ```
 
 Then we can join bus stop with hexagon, and join with subzone to exclude hexagons out of range.
 
 ```{r}
+#| code-fold: show
 bus_hex <- st_join(
   st_join(hexagon, busstop%>%select(BUS_STOP_N,geometry), join = st_intersects),
   sz) %>%
   drop_na() %>%
   distinct(BUS_STOP_N, .keep_all = TRUE)
+
+bus_hex
 ```
 
-Check for duplicate geometry.
+Notice there would be duplicate geometry, meaning multiple 'BUS_STOP_N's at same hexagon.
 
 ```{r}
-#| eval: false
 bus_hex %>%
   group_by(geometry)%>%
   filter(row_number()>1)
@@ -160,6 +191,7 @@ glimpse(peak_trips)
 Check any bus stops not in our origin 'bus_hex' list.
 
 ```{r}
+#| code-fold: show
 #| eval: false
 peak_trips %>%
   filter(! ORIGIN_PT_CODE %in% bus_hex$'BUS_STOP_N') %>%
@@ -170,6 +202,7 @@ peak_trips %>%
 Exclude any bus stops not included in 'bus_hex' data before continue.
 
 ```{r}
+#| code-fold: show
 peak_trips <- peak_trips %>%
   filter(ORIGIN_PT_CODE %in% bus_hex$'BUS_STOP_N') %>%
   filter(DESTINATION_PT_CODE %in% bus_hex$'BUS_STOP_N')
@@ -178,6 +211,7 @@ peak_trips <- peak_trips %>%
 Duplication check before continue.
 
 ```{r}
+#| code-fold: show
 #| eval: false
 peak_trips %>%
   group_by_all() %>%
@@ -188,6 +222,7 @@ peak_trips %>%
 After that, we need to combine those passenger trip data with geospatial data by origin bus stops.
 
 ```{r}
+#| code-fold: show
 peaktrip_hex <- left_join(peak_trips %>% 
                             group_by(ORIGIN_PT_CODE, DESTINATION_PT_CODE) %>%
                             reframe(TRIPS = sum(TRIPS)),
@@ -200,6 +235,7 @@ peaktrip_hex <- left_join(peak_trips %>%
 Duplication check before continue:
 
 ```{r}
+#| code-fold: show
 #| eval: false
 peaktrip_hex %>%
   group_by_all() %>%
@@ -213,11 +249,14 @@ Then we can continue to join again with geospatial data by destination bus stops
 peaktrip_hex <- left_join(peaktrip_hex, bus_hex %>% select(BUS_STOP_N, geometry), 
                           by = c("DESTIN_BS" = "BUS_STOP_N"),
                           suffix = c(".origin", ".destin")) 
+
+glimpse(peaktrip_hex)
 ```
 
 Duplication check again.
 
 ```{r}
+#| code-fold: show
 peaktrip_hex %>%
   group_by_all() %>%
   filter(n()>1) %>%
@@ -227,6 +266,7 @@ peaktrip_hex %>%
 We can save the output into a rds file.
 
 ```{r}
+#| code-fold: show
 #| eval: false
 write_rds(peaktrip_hex, "./data/rds/peaktrip_hex.rds")
 ```
@@ -238,6 +278,7 @@ Display the O-D flows of the passenger trips by using appropriate geovisualisati
 First let's ensure there aren't any observations with same origin and destination.
 
 ```{r}
+#| code-fold: show
 #| eval: false
 peaktrip_hex %>%
   filter(ORIGIN_BS==DESTIN_BS)
@@ -266,7 +307,8 @@ tm_shape() +
            style = "quantile",
            scale = c(0.1, 1, 3, 5, 7, 10),
            n = 6,
-           alpha = 0.5)
+           col = "darkgreen",
+           alpha = 0.6)
 ```
 
 And we can visualize 4 peak time intervals in facets style to check any difference within.
@@ -289,11 +331,14 @@ peak_interval_hex <- left_join(peak_interval_trips,
 peak_interval_hex <- left_join(peak_interval_hex, bus_hex %>% select(BUS_STOP_N, geometry), 
                           by = c("DESTIN_BS" = "BUS_STOP_N"),
                           suffix = c(".origin", ".destin")) 
+
+glimpse(peak_interval_hex)
 ```
 
 Before we continue, we can check duplication and save the result as a rds file.
 
 ```{r}
+#| code-fold: show
 #| eval: false
 peak_interval_hex %>%
   group_by_all() %>%
@@ -302,6 +347,7 @@ peak_interval_hex %>%
 ```
 
 ```{r}
+#| code-fold: show
 #| eval: false
 write_rds(peak_interval_hex, "./data/rds/peak_interval_hex.rds")
 ```
@@ -331,7 +377,8 @@ tm_shape() +
            style = "quantile",
            scale = c(0.1, 1, 3, 5, 7, 10),
            n = 6,
-           alpha = 0.5) +
+           col = "darkgreen",
+           alpha = 0.6) +
   tm_layout(main.title = "Trips during Weekday 6am till 9am",
             main.title.size = 1.2)
 
@@ -345,7 +392,8 @@ tm_shape() +
            style = "quantile",
            scale = c(0.1, 1, 3, 5, 7, 10),
            n = 6,
-           alpha = 0.5) +
+           col = "darkgreen",
+           alpha = 0.6) +
   tm_layout(main.title = "Trips during Weekday 5pm till 8pm",
             main.title.size = 1.2)
 
@@ -359,7 +407,8 @@ tm_shape() +
            style = "quantile",
            scale = c(0.1, 1, 3, 5, 7, 10),
            n = 6,
-           alpha = 0.5) +
+           col = "darkgreen",
+           alpha = 0.6) +
   tm_layout(main.title = "Trips during Weekend/Holiday 11am till 2pm",
             main.title.size = 1.2)
 
@@ -373,7 +422,8 @@ tm_shape() +
            style = "quantile",
            scale = c(0.1, 1, 3, 5, 7, 10),
            n = 6,
-           alpha = 0.5) +
+           col = "darkgreen",
+           alpha = 0.6) +
   tm_layout(main.title = "Trips during Weekend/Holiday 4pm till 7pm",
             main.title.size = 1.2)
 
@@ -427,6 +477,8 @@ factors <- st_join(retail %>% select(POI_NAME, geometry),
   st_join(entertn %>% select(POI_NAME, geometry) %>% rename(entertn = POI_NAME),
           join = st_nearest_feature) %>%
   st_join(bus_hex%>%select(BUS_STOP_N, geometry), join = st_nearest_feature)
+
+glimpse(factors)
 ```
 
 Then we need to count the point of each variable around each bus stop.
@@ -455,11 +507,7 @@ factor_count <-
     aggregate(entertn ~ BUS_STOP_N, data = factors, function(x) length(unique(x))) %>%
     rename(entertn_poi = entertn),
     by = join_by(BUS_STOP_N)) 
-```
 
-Check summary of assembled factors before continue.
-
-```{r}
 summary(factor_count)
 ```
 
@@ -486,23 +534,26 @@ dist <- spDists(bus_sp,
 head(dist, n=c(5, 5))
 ```
 
-Then we can label the bus stops and convert it to pair-distance.
+And we need to give names to columns and rows of the matrix.
 
 ```{r}
-busstop_N <- bus_hex$BUS_STOP_N
+busstop_N <- bus_sp$BUS_STOP_N
 
 colnames(dist) <- paste0(busstop_N)
 rownames(dist) <- paste0(busstop_N)
 
-distPair <- melt(dist) %>%
-  rename(dist = value,
-         orig = Var1,
-         dest = Var2) %>%
-  filter(orig != dest) %>%
-  mutate(orig = as.character(orig),
-         dest = as.character(dest))
+head(dist, n=c(5, 5))
+```
 
-head(distPair, 10)
+Then we can label the bus stops and convert it to pair-distance.
+
+```{r}
+distPair <- as.data.frame(as.table(dist)) 
+names(distPair) <- c("orig", "dest", "dist")
+distPair <- distPair %>%
+  filter(orig != dest)
+
+glimpse(distPair)
 ```
 
 Let's give a constant distance of 50m to intra-hexagon bus stops pairs before continue.
@@ -512,13 +563,6 @@ distPair$dist <- ifelse(distPair$dist == 0,
                         50, distPair$dist)
 
 summary(distPair)
-```
-
-Save the output of pairwise distance as rds file.
-
-```{r}
-#| eval: false
-write_rds(distPair, "./data/rds/distPair.rds") 
 ```
 
 ### **4.2 Spatial Interaction Modelling**
@@ -566,18 +610,75 @@ weekendpm_flow %>%
   filter(ORIGIN_BS == DESTIN_BS)
 ```
 
-Then we can join the flow data with pairwise distance.
+Then we can join the flow data with pairwise distance and use summary to check any case of 0.
 
 ```{r}
-weekendpm_flow <- weekendpm_flow %>%
+weekendpm_dist <- weekendpm_flow %>%
   left_join (distPair,
              by = c("ORIGIN_BS" = "orig",
                     "DESTIN_BS" = "dest"))
+
+summary(weekendpm_dist)
 ```
 
+Till now we can join the flow data with all 6 propulsive and Attractiveness variables by both origin and destination bus stops.
+
 ```{r}
-weekendpm_flow %>%
-  filter(dist != NA)
+weekendpm_SIM <- weekendpm_dist %>%
+  left_join(factor_count, by = c("ORIGIN_BS"="BUS_STOP_N")) %>%
+  left_join(factor_count, by = c("DESTIN_BS"="BUS_STOP_N"), 
+            suffix = c("_orig", "_dest"))
+#weekendpm_SIM[is.na(weekendpm_SIM)] <- 0.1
+
+summary(weekendpm_SIM)
+```
+
+Now we can calibrate an unconstrained spatial interaction model by using `glm().`
+
+```{r}
+uncSIM <- glm(formula = TRIPS ~ 
+                log(retail_poi_orig) + 
+                log(retail_poi_dest) +
+                log(finance_poi_orig) + 
+                log(finance_poi_dest) +
+                log(business_poi_orig) + 
+                log(business_poi_dest) +
+                log(food_poi_orig) + 
+                log(food_poi_dest) +
+                log(leisure_poi_orig) + 
+                log(leisure_poi_dest) +
+                log(entertn_poi_orig) + 
+                log(entertn_poi_dest) +
+                log(dist),
+              family = poisson(link = "log"),
+              data = weekendpm_SIM,
+              na.action = na.exclude)
+uncSIM
+```
+
+Then let's fit a doubly constrained SIM .
+
+```{r}
+dbcSIM <- glm(formula = TRIPS ~ 
+                ORIGIN_BS + 
+                DESTIN_BS + 
+                log(retail_poi_orig) + 
+                log(retail_poi_dest) +
+                log(finance_poi_orig) + 
+                log(finance_poi_dest) +
+                log(business_poi_orig) + 
+                log(business_poi_dest) +
+                log(food_poi_orig) + 
+                log(food_poi_dest) +
+                log(leisure_poi_orig) + 
+                log(leisure_poi_dest) +
+                log(entertn_poi_orig) + 
+                log(entertn_poi_dest) +
+                log(dist),
+              family = poisson(link = "log"),
+              data = weekendpm_SIM,
+              na.action = na.exclude)
+summary(dbcSIM)
 ```
 
 #### 4.2.2 Visualizing Modelling results
