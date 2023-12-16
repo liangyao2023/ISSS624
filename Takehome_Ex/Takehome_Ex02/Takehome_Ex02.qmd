@@ -55,7 +55,7 @@ Those specially collected data aim to use within this excercise content only, if
 For starting, load needing packages.
 
 ```{r}
-pacman::p_load(sf, sp, spdep, tmap, tidyverse, sfdep, stplanr, performance, corrplot)
+pacman::p_load(sf, sp, spdep, tmap, tidyverse, sfdep, stplanr, corrplot, ggplot2)
 ```
 
 ## **4 The Task**
@@ -158,6 +158,7 @@ Import bus passenger trips data.
 
 ```{r}
 #| code-fold: show
+#| eval: false
 odbus = read_csv("./data/aspatial/origin_destination_bus_202310.csv")  %>%
   mutate(ORIGIN_PT_CODE = as.factor(ORIGIN_PT_CODE),
          DESTINATION_PT_CODE = as.factor(DESTINATION_PT_CODE))
@@ -166,6 +167,8 @@ odbus = read_csv("./data/aspatial/origin_destination_bus_202310.csv")  %>%
 Extract passenger trips data during all peak time intervals.
 
 ```{r}
+#| code-fold: show
+#| eval: false
 peak_trips <- bind_rows(
   odbus %>%
   filter(DAY_TYPE == "WEEKDAY") %>%
@@ -189,8 +192,6 @@ peak_trips <- bind_rows(
     mutate(interval = "weekendpm")) %>%
   group_by(ORIGIN_PT_CODE, DESTINATION_PT_CODE, interval) %>%
   reframe(TRIPS = sum(TOTAL_TRIPS)) 
-
-glimpse(peak_trips)
 ```
 
 Check any bus stops not in our origin 'bus_hex' list.
@@ -208,6 +209,7 @@ Exclude any bus stops not included in 'bus_hex' data before continue.
 
 ```{r}
 #| code-fold: show
+#| eval: false
 peak_trips <- peak_trips %>%
   filter(ORIGIN_PT_CODE %in% bus_hex$'BUS_STOP_N') %>%
   filter(DESTINATION_PT_CODE %in% bus_hex$'BUS_STOP_N')
@@ -228,6 +230,7 @@ After that, we need to combine those passenger trip data with geospatial data by
 
 ```{r}
 #| code-fold: show
+#| eval: false
 peaktrip_hex <- left_join(peak_trips %>% 
                             group_by(ORIGIN_PT_CODE, DESTINATION_PT_CODE) %>%
                             reframe(TRIPS = sum(TRIPS)),
@@ -251,29 +254,22 @@ peaktrip_hex %>%
 Then we can continue to join again with geospatial data by destination bus stops.
 
 ```{r}
+#| code-fold: show
+#| eval: false
 peaktrip_hex <- left_join(peaktrip_hex, bus_hex %>% select(BUS_STOP_N, geometry), 
                           by = c("DESTIN_BS" = "BUS_STOP_N"),
                           suffix = c(".origin", ".destin")) 
-
-glimpse(peaktrip_hex)
 ```
 
 Duplication check again.
 
 ```{r}
 #| code-fold: show
+#| eval: false
 peaktrip_hex %>%
   group_by_all() %>%
   filter(n()>1) %>%
   ungroup()
-```
-
-We can save the output into a rds file.
-
-```{r}
-#| code-fold: show
-#| eval: false
-write_rds(peaktrip_hex, "./data/rds/peaktrip_hex.rds")
 ```
 
 #### 4.1.3 Visualize O-D Flows
@@ -293,12 +289,29 @@ Then we can create flow lines and check summary of data in case there are any ze
 
 ```{r}
 #| code-fold: show
+#| eval: false
 peaktrip_flow <- od2line(flow = peaktrip_hex, 
                     zones = bus_hex,
                     zone_code = "BUS_STOP_N")
+```
+
+We can save the output into a rds file.
+
+```{r}
+#| code-fold: show
+#| eval: false
+write_rds(peaktrip_flow, "./data/rds/peaktrip_flow.rds")
+```
+
+Read from peaktrip_hex from file.
+
+```{r}
+peaktrip_flow <- read_rds("./data/rds/peaktrip_flow.rds")
 
 summary(peaktrip_flow)
 ```
+
+#### 
 
 Till now, we can plot out the bus trip flow during all 4 peak time intervals in total.
 
@@ -313,7 +326,7 @@ tm_shape() +
            style = "quantile",
            scale = c(0.1, 1, 3, 5, 7, 10),
            n = 6,
-           col = "darkgreen",
+           col = "navy",
            alpha = 0.6)
 ```
 
@@ -322,6 +335,8 @@ And we can visualize 4 peak time intervals in facets style to check any differen
 First need to wrangling the data to put trips data of different time intervals into different columns.
 
 ```{r}
+#| code-fold: show
+#| eval: false
 peak_interval_trips <- peak_trips %>%
   pivot_wider(names_from = interval, 
               values_from = TRIPS, 
@@ -337,8 +352,6 @@ peak_interval_hex <- left_join(peak_interval_trips,
 peak_interval_hex <- left_join(peak_interval_hex, bus_hex %>% select(BUS_STOP_N, geometry), 
                           by = c("DESTIN_BS" = "BUS_STOP_N"),
                           suffix = c(".origin", ".destin")) 
-
-glimpse(peak_interval_hex)
 ```
 
 Before we continue, we can check duplication and save the result as a rds file.
@@ -352,18 +365,28 @@ peak_interval_hex %>%
   ungroup()
 ```
 
-```{r}
-#| code-fold: show
-#| eval: false
-write_rds(peak_interval_hex, "./data/rds/peak_interval_hex.rds")
-```
-
 Then we can create flow lines.
 
 ```{r}
+#| code-fold: show
+#| eval: false
 peak_interval_flow <- od2line(flow = peak_interval_hex, 
                     zones = bus_hex,
                     zone_code = "BUS_STOP_N")
+```
+
+Save data to rds file.
+
+```{r}
+#| code-fold: show
+#| eval: false
+write_rds(peak_interval_flow, "./data/rds/peak_interval_flow.rds")
+```
+
+Read data from file.
+
+```{r}
+peak_interval_flow <- read_rds("./data/rds/peak_interval_flow.rds")
 
 summary(peak_interval_flow)
 ```
@@ -373,12 +396,13 @@ Then we can plot out 4 peak intervals in facets.
 ```{r}
 #| fig-width: 10
 #| fig-height: 10
-weekdayam_plot <- tm_shape(sz) +
+tmap_arrange(
+  tm_shape(sz) +
   tmap_options(check.and.fix = TRUE) +
   tm_polygons() +
-peak_interval_flow %>% 
-  filter(weekdayam >= 5000) %>%
-tm_shape() +
+  peak_interval_flow %>% 
+    filter(weekdayam >= 5000) %>%
+  tm_shape() +
   tm_lines(lwd = "weekdayam",
            style = "quantile",
            scale = c(0.1, 1, 3, 5, 7, 10),
@@ -386,14 +410,14 @@ tm_shape() +
            col = "darkgreen",
            alpha = 0.6) +
   tm_layout(main.title = "Trips during Weekday 6am till 9am",
-            main.title.size = 1.2)
+            main.title.size = 1.2),
 
-weekdaypm_plot <- tm_shape(sz) +
+  tm_shape(sz) +
   tmap_options(check.and.fix = TRUE) +
   tm_polygons() +
-peak_interval_flow %>% 
-  filter(weekdaypm >= 5000) %>%
-tm_shape() +
+  peak_interval_flow %>% 
+    filter(weekdaypm >= 5000) %>%
+  tm_shape() +
   tm_lines(lwd = "weekdaypm",
            style = "quantile",
            scale = c(0.1, 1, 3, 5, 7, 10),
@@ -401,40 +425,39 @@ tm_shape() +
            col = "darkgreen",
            alpha = 0.6) +
   tm_layout(main.title = "Trips during Weekday 5pm till 8pm",
-            main.title.size = 1.2)
+            main.title.size = 1.2),
 
-weekendam_plot <- tm_shape(sz) +
+  tm_shape(sz) +
   tmap_options(check.and.fix = TRUE) +
   tm_polygons() +
-peak_interval_flow %>% 
-  filter(weekendam >= 2000) %>%
-tm_shape() +
+  peak_interval_flow %>% 
+    filter(weekendam >= 2000) %>%
+  tm_shape() +
   tm_lines(lwd = "weekendam",
            style = "quantile",
            scale = c(0.1, 1, 3, 5, 7, 10),
            n = 6,
-           col = "darkgreen",
+           col = "navy",
            alpha = 0.6) +
   tm_layout(main.title = "Trips during Weekend/Holiday 11am till 2pm",
-            main.title.size = 1.2)
+            main.title.size = 1.2),
 
-weekendpm_plot <- tm_shape(sz) +
+  tm_shape(sz) +
   tmap_options(check.and.fix = TRUE) +
   tm_polygons() +
-peak_interval_flow %>% 
-  filter(weekendpm >= 2000) %>%
-tm_shape() +
+  peak_interval_flow %>% 
+   filter(weekendpm >= 2000) %>%
+  tm_shape() +
   tm_lines(lwd = "weekendpm",
            style = "quantile",
            scale = c(0.1, 1, 3, 5, 7, 10),
            n = 6,
-           col = "darkgreen",
-           alpha = 0.6) +
+           col = "navy",
+           alpha = 0.8) +
   tm_layout(main.title = "Trips during Weekend/Holiday 4pm till 7pm",
-            main.title.size = 1.2)
-
-tmap_arrange(weekdayam_plot, weekdaypm_plot, weekendam_plot, weekendpm_plot, asp=1, ncol=2,
-             outer.margins = 0)
+            main.title.size = 1.2), 
+asp=1, ncol=2,
+outer.margins = 0)
 ```
 
 ::: callout-note
@@ -444,7 +467,7 @@ tmap_arrange(weekdayam_plot, weekdaypm_plot, weekendam_plot, weekendpm_plot, asp
 
 -   The flow lines between Woodlands and Tampines are the common busy lines during all peak hours no matter weekdays or weekends.
 
--   Trip flow during weekend/holiday afternoon peak hours is the most disperse one.
+-   Trip flow during weekend/holiday afternoon peak hours is most disperse.
 :::
 
 #### 4.1.4 Propulsive and Attractiveness variables
@@ -452,6 +475,8 @@ tmap_arrange(weekdayam_plot, weekdaypm_plot, weekendam_plot, weekendpm_plot, asp
 Firstly import all those propulsive and Attractiveness variables.
 
 ```{r}
+#| code-fold: show
+#| eval: false
 business = st_read(dsn = "./data/geospatial",
                    layer = "Business")  %>% st_transform(crs = 3414) 
 
@@ -474,8 +499,11 @@ retail = st_read(dsn = "./data/geospatial",
 Then we can assemble all those variables with our hexagon.
 
 ```{r}
+#| code-fold: show
+#| eval: false
 bus_var <- bus_hex %>% 
-  select(BUS_STOP_N, N, geometry) %>%
+  select(BUS_STOP_N, N, geometry) %>% 
+  rename(busstop_count = N) %>%
   mutate(retail_N = lengths(st_intersects(bus_hex, retail)),
          business_N = lengths(st_intersects(bus_hex, business)),
          finance_N = lengths(st_intersects(bus_hex, finance)),
@@ -488,8 +516,6 @@ bus_var <- bus_hex %>%
          food_N = ifelse(food_N>0, food_N, 0.01),
          leisure_N = ifelse(leisure_N>0, leisure_N, 0.01),
          entertn_N = ifelse(entertn_N>0, entertn_N, 0.01))
-
-summary(bus_var)
 ```
 
 ::: callout-important
@@ -503,47 +529,44 @@ summary(bus_var)
 First we need to convert the bus_hex we have generated into **Spatial Polygons Data Frame.**
 
 ```{r}
+#| code-fold: show
+#| eval: false
 bus_sp <- as(bus_hex, "Spatial")
 bus_sp
 ```
 
-Then we can compute distance matrix of our bus stops hexagons and check the head 5.
+Then we can compute distance matrix of our bus stops hexagons and give names to columns and rows of the matrix.
 
 ```{r}
+#| code-fold: show
+#| eval: false
 dist <- spDists(bus_sp, 
                 longlat = FALSE)
-head(dist, n=c(5, 5))
-```
 
-And we need to give names to columns and rows of the matrix.
-
-```{r}
 busstop_N <- bus_sp$BUS_STOP_N
 
 colnames(dist) <- paste0(busstop_N)
 rownames(dist) <- paste0(busstop_N)
-
-head(dist, n=c(5, 5))
 ```
 
 Then we can label the bus stops and convert it to pair-distance.
 
 ```{r}
+#| code-fold: show
+#| eval: false
 distPair <- as.data.frame(as.table(dist)) 
 names(distPair) <- c("orig", "dest", "dist")
 distPair <- distPair %>%
   filter(orig != dest)
-
-glimpse(distPair)
 ```
 
 Let's give a constant distance of 50m to intra-hexagon bus stops pairs before continue.
 
 ```{r}
+#| code-fold: show
+#| eval: false
 distPair$dist <- ifelse(distPair$dist == 0,
                         50, distPair$dist)
-
-summary(distPair)
 ```
 
 ### **4.2 Spatial Interaction Modelling**
@@ -553,6 +576,8 @@ summary(distPair)
 For this part, I will focus on weekend/holiday evening peak time interval for further analysis.
 
 ```{r}
+#| code-fold: show
+#| eval: false
 weekendpm_trips <- odbus %>%
   filter(DAY_TYPE == "WEEKENDS/HOLIDAY") %>%
   filter(TIME_PER_HOUR >= 16 &
@@ -577,11 +602,11 @@ weekendpm_hex <- left_join(weekendpm_hex, bus_hex %>% select(BUS_STOP_N, geometr
 Create flow lines for those trips data.
 
 ```{r}
+#| code-fold: show
+#| eval: false
 weekendpm_flow <- od2line(flow = weekendpm_hex, 
                     zones = bus_hex,
                     zone_code = "BUS_STOP_N") 
-
-summary(weekendpm_flow)
 ```
 
 To ensure, let's check any case of origin == destination before continue.
@@ -593,20 +618,22 @@ weekendpm_flow %>%
   filter(ORIGIN_BS == DESTIN_BS)
 ```
 
-Then we can join the flow data with pairwise distance and use summary to check any case of 0.
+Then we can join the flow data with pairwise distance.
 
 ```{r}
+#| code-fold: show
+#| eval: false
 weekendpm_dist <- weekendpm_flow %>%
   left_join (distPair,
              by = c("ORIGIN_BS" = "orig",
                     "DESTIN_BS" = "dest"))
-
-summary(weekendpm_dist)
 ```
 
 Till now we can join the flow data with all 6 propulsive and Attractiveness variables by both origin and destination bus stops.
 
 ```{r}
+#| code-fold: show
+#| eval: false
 weekendpm_SIM <- weekendpm_dist %>%
   left_join(as.data.frame(bus_var) %>% select(-geometry), 
             by = c("ORIGIN_BS"="BUS_STOP_N")) %>%
@@ -614,6 +641,20 @@ weekendpm_SIM <- weekendpm_dist %>%
             by = c("DESTIN_BS"="BUS_STOP_N"), 
             suffix = c("_orig", "_dest"))
 #weekendpm_SIM[is.na(weekendpm_SIM)] <- 0.1
+```
+
+Then we can save the data to rds file.
+
+```{r}
+#| code-fold: show
+#| eval: false
+write_rds(weekendpm_SIM, "./data/rds/weekendpm_SIM.rds")
+```
+
+Read the data from file.
+
+```{r}
+weekendpm_SIM <- read_rds("./data/rds/weekendpm_SIM.rds")
 
 summary(weekendpm_SIM)
 ```
@@ -651,7 +692,7 @@ r_squared <- vector("numeric", length(vars))
 
 for (i in seq_along(vars)) {
 #  formula <- as.formula(paste("TRIPS ~ log(", vars[i], ")", sep = ""))  
-#  model <- glm(formula, family = poisson(link = "log"), data = weekendpm_SIM)
+#  model <- lm(formula, family = poisson(link = "log"), data = weekendpm_SIM)
   r_squared[i] <- round(var_cor[1,i+1]^2,5)
 #  p_value[i] <- round(summary(model)$coefficients[2, 4],5)
 #  coeffi <- round(summary(model)$coefficients[2, 1],5)
@@ -663,11 +704,11 @@ data.frame(Variable = vars, R_squared = r_squared)
 From above correlation analysis, I would drop number of retail, food and entertain point for further analysis.
 
 ```{r}
-weekendpm_SIM_selected <- weekendpm_SIM %>%
+weekendpm_SIM <- weekendpm_SIM %>%
   select(-c("retail_N_orig", "retail_N_dest", "food_N_orig", "food_N_dest", "entertn_N_orig", "entertn_N_dest"))
 ```
 
-#### 4.2.3 Unconstrained/Origin-constrained/Destination-constrained SIMs.
+#### 4.2.3 Spatial Interaction Model Calibration
 
 Now we can calibrate an unconstrained spatial interaction model by using `glm().`
 
@@ -681,7 +722,7 @@ uncSIM <- glm(formula = TRIPS ~
                 log(leisure_N_dest) +
                 log(dist),
               family = poisson(link = "log"),
-              data = weekendpm_SIM_selected,
+              data = weekendpm_SIM,
               na.action = na.exclude)
 uncSIM
 ```
@@ -697,7 +738,7 @@ origSIM <- glm(formula = TRIPS ~
                 log(leisure_N_dest) +
                 log(dist),
               family = poisson(link = "log"),
-              data = weekendpm_SIM_selected,
+              data = weekendpm_SIM,
               na.action = na.exclude)
 
 destSIM <- glm(formula = TRIPS ~ 
@@ -707,7 +748,7 @@ destSIM <- glm(formula = TRIPS ~
                 log(leisure_N_orig) +
                 log(dist),
               family = poisson(link = "log"),
-              data = weekendpm_SIM_selected,
+              data = weekendpm_SIM,
               na.action = na.exclude)
 ```
 
@@ -718,22 +759,36 @@ dbcSIM <- glm(formula = TRIPS ~
                 DESTIN_BS +
                 log(dist),
               family = poisson(link = "log"),
-              data = weekendpm_SIM_selected,
+              data = weekendpm_SIM,
               na.action = na.exclude)
 
 tail(summary(dbcSIM)$coefficients, 3)
 ```
 
-#### 4.2.4 Model performance checking
+#### 4.2.4 Visualizing Modelling results
 
-Check the performance of 4 models.
+First we need to combine the model fitted values with the actual trip data.
 
-#### 4.2.5 Visualizing Modelling results
+```{r}
+#| code-fold: show
+weekendpm_SIM <- weekendpm_SIM %>%
+  cbind(as.data.frame(uncSIM$fitted.values) %>%
+        round(digits = 0)) %>%
+  rename(uncTRIPS = "uncSIM.fitted.values")
+```
 
-Present the modelling results by using appropriate geovisualization and graphical visualization methods.
+Then we can visualize the observed values and the fitted values.
+
+```{r}
+ggplot(data = weekendpm_SIM,
+                aes(x = uncTRIPS,
+                    y = TRIPS)) +
+  geom_point() +
+  geom_smooth(method = lm)
+```
 
 ::: callout-note
 **Observations:**
 
--   With reference to the Spatial Interaction Model output tables, maps and data visualization prepared, describe the modelling results
+-   This unconstrained model can barely estimate the trip flow.
 :::
