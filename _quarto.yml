@@ -15,13 +15,13 @@ website:
           - href: "Handson_Ex/Handson_Ex02/Handson_Ex02.qmd"
           - href: "Handson_Ex/Handson_Ex03/Handson_Ex03.qmd"
           - href: "Handson_Ex/Handson_Ex04/Handson_Ex04.qmd"
-          - href: "Handson_Ex/Handson_Ex05/Handson_Ex05.qmd"
       - section: "In class Ex"
         contents: 
           - href: "Inclass_Ex/Inclass_Ex01/Inclass_Ex01.qmd"
           - href: "Inclass_Ex/Inclass_Ex02/Inclass_Ex02.qmd"
           - href: "Inclass_Ex/Inclass_Ex03/Inclass_Ex03.qmd"
           - href: "Inclass_Ex/Inclass_Ex04/Inclass_Ex04.qmd"
+          - href: "Inclass_Ex/Inclass_Ex05/Inclass_Ex05.qmd"
       - section: "Take Home Ex"
         contents: 
           - href: "Takehome_Ex/Takehome_Ex01/Takehome_Ex01.qmd"

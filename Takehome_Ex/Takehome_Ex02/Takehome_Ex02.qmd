@@ -55,7 +55,7 @@ Those specially collected data aim to use within this excercise content only, if
 For starting, load needing packages.
 
 ```{r}
-pacman::p_load(sf, sp, spdep, tmap, tidyverse, sfdep, stplanr, reshape2)
+pacman::p_load(sf, sp, spdep, tmap, tidyverse, sfdep, stplanr, performance)
 ```
 
 ## **4 The Task**
@@ -69,6 +69,7 @@ Derive an analytical hexagon data of 375m (this distance is the perpendicular di
 First of all, we need to import *Bus Stop Location* from LTA DataMall.
 
 ```{r}
+#| code-fold: show
 busstop = st_read(dsn = "./data/geospatial/BusStopLocation_Jul2023",
                    layer = "BusStop")  %>% st_transform(crs = 3414) %>% 
   distinct(BUS_STOP_N, .keep_all = TRUE)
@@ -77,6 +78,7 @@ busstop = st_read(dsn = "./data/geospatial/BusStopLocation_Jul2023",
 Also import subzone geometry data as our background layer.
 
 ```{r}
+#| code-fold: show
 sz = st_read(dsn = "./data/geospatial",
                    layer = "MPSZ-2019")  %>% st_transform(crs = 3414) 
 ```
@@ -84,6 +86,7 @@ sz = st_read(dsn = "./data/geospatial",
 Then we can Derive an analytical hexagon data of 375m.
 
 ```{r}
+#| code-fold: show
 hexagon <- st_sf(geometry = st_make_grid(busstop, cellsize = 750, what = "polygons",square = FALSE)) %>%
   mutate(id = row_number()) %>%
   st_transform(crs = 3414) 
@@ -134,6 +137,7 @@ bus_hex
 Notice there would be duplicate geometry, meaning multiple 'BUS_STOP_N's at same hexagon.
 
 ```{r}
+#| code-fold: show
 bus_hex %>%
   group_by(geometry)%>%
   filter(row_number()>1)
@@ -153,6 +157,7 @@ With reference to the time intervals provided in the table below, construct an O
 Import bus passenger trips data.
 
 ```{r}
+#| code-fold: show
 odbus = read_csv("./data/aspatial/origin_destination_bus_202310.csv")  %>%
   mutate(ORIGIN_PT_CODE = as.factor(ORIGIN_PT_CODE),
          DESTINATION_PT_CODE = as.factor(DESTINATION_PT_CODE))
@@ -287,6 +292,7 @@ peaktrip_hex %>%
 Then we can create flow lines and check summary of data in case there are any zero.
 
 ```{r}
+#| code-fold: show
 peaktrip_flow <- od2line(flow = peaktrip_hex, 
                     zones = bus_hex,
                     zone_code = "BUS_STOP_N")
@@ -606,6 +612,7 @@ summary(weekendpm_flow)
 To ensure, let's check any case of origin == destination before continue.
 
 ```{r}
+#| code-fold: show
 weekendpm_flow %>%
   filter(ORIGIN_BS == DESTIN_BS)
 ```
@@ -656,30 +663,51 @@ uncSIM <- glm(formula = TRIPS ~
 uncSIM
 ```
 
-Then let's fit a doubly constrained SIM .
+Then let's fit a origin/destination/doubly constrained SIM .
 
 ```{r}
-dbcSIM <- glm(formula = TRIPS ~ 
+#| eval: false
+origSIM <- glm(formula = TRIPS ~ 
                 ORIGIN_BS + 
-                DESTIN_BS + 
-                log(retail_poi_orig) + 
                 log(retail_poi_dest) +
-                log(finance_poi_orig) + 
                 log(finance_poi_dest) +
-                log(business_poi_orig) + 
                 log(business_poi_dest) +
-                log(food_poi_orig) + 
                 log(food_poi_dest) +
-                log(leisure_poi_orig) + 
                 log(leisure_poi_dest) +
-                log(entertn_poi_orig) + 
                 log(entertn_poi_dest) +
                 log(dist),
               family = poisson(link = "log"),
               data = weekendpm_SIM,
               na.action = na.exclude)
-summary(dbcSIM)
+
+destSIM <- glm(formula = TRIPS ~ 
+                DESTIN_BS + 
+                log(retail_poi_orig) +
+                log(finance_poi_orig) +
+                log(business_poi_orig) +
+                log(food_poi_orig) +
+                log(leisure_poi_orig) +
+                log(entertn_poi_orig) +
+                log(dist),
+              family = poisson(link = "log"),
+              data = weekendpm_SIM,
+              na.action = na.exclude)
 ```
+
+```{r}
+#| eval: false
+dbcSIM <- glm(formula = TRIPS ~ 
+                ORIGIN_BS + 
+                DESTIN_BS +
+                log(dist),
+              family = poisson(link = "log"),
+              data = weekendpm_SIM,
+              na.action = na.exclude)
+
+tail(summary(dbcSIM)$coefficients, 3)
+```
+
+Check the performance of 4 models.
 
 #### 4.2.2 Visualizing Modelling results
 
