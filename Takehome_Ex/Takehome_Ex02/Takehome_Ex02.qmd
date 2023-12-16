@@ -55,7 +55,7 @@ Those specially collected data aim to use within this excercise content only, if
 For starting, load needing packages.
 
 ```{r}
-pacman::p_load(sf, sp, spdep, tmap, tidyverse, sfdep, stplanr, performance)
+pacman::p_load(sf, sp, spdep, tmap, tidyverse, sfdep, stplanr, performance, corrplot)
 ```
 
 ## **4 The Task**
@@ -440,7 +440,11 @@ tmap_arrange(weekdayam_plot, weekdaypm_plot, weekendam_plot, weekendpm_plot, asp
 ::: callout-note
 **Observations:**
 
-Describe the spatial patterns revealed by the geo-visualization (not more than 100 words per visual)
+-   The heavy traffic lines are similar during weekdays no matter morning or evening peak time, and the locations are reconcile with those hexagons which are condensed with count of bus stops.
+
+-   The flow lines between Woodlands and Tampines are the common busy lines during all peak hours no matter weekdays or weekends.
+
+-   Trip flow during weekend/holiday afternoon peak hours is the most disperse one.
 :::
 
 #### 4.1.4 Propulsive and Attractiveness variables
@@ -467,60 +471,31 @@ retail = st_read(dsn = "./data/geospatial",
                    layer = "Retails")  %>% st_transform(crs = 3414) 
 ```
 
-Then we can assemble all those variables by using st_join.
+Then we can assemble all those variables with our hexagon.
 
 ```{r}
-factors <- st_join(retail %>% select(POI_NAME, geometry), 
-                   business %>% select(POI_NAME, geometry), 
-                   join = st_nearest_feature,
-                   suffix = c("_retail", "_business")) %>% 
-  st_join(finance %>% select(POI_NAME, geometry) %>% rename(finance = POI_NAME),
-          join = st_nearest_feature) %>% 
-  st_join(food %>% select(POI_NAME, geometry) %>% rename(food = POI_NAME),
-          join = st_nearest_feature) %>% 
-  st_join(leisure %>% select(POI_NAME, geometry) %>% rename(leisure = POI_NAME),
-          join = st_nearest_feature) %>% 
-  st_join(entertn %>% select(POI_NAME, geometry) %>% rename(entertn = POI_NAME),
-          join = st_nearest_feature) %>%
-  st_join(bus_hex%>%select(BUS_STOP_N, geometry), join = st_nearest_feature)
+bus_var <- bus_hex %>% 
+  select(BUS_STOP_N, N, geometry) %>%
+  mutate(retail_N = lengths(st_intersects(bus_hex, retail)),
+         business_N = lengths(st_intersects(bus_hex, business)),
+         finance_N = lengths(st_intersects(bus_hex, finance)),
+         food_N = lengths(st_intersects(bus_hex, food)),
+         leisure_N = lengths(st_intersects(bus_hex, leisure)),
+         entertn_N = lengths(st_intersects(bus_hex, entertn))) %>%
+  mutate(retail_N = ifelse(retail_N>0, retail_N, 0.01),
+         business_N = ifelse(business_N>0, business_N, 0.01),
+         finance_N = ifelse(finance_N>0, finance_N, 0.01),
+         food_N = ifelse(food_N>0, food_N, 0.01),
+         leisure_N = ifelse(leisure_N>0, leisure_N, 0.01),
+         entertn_N = ifelse(entertn_N>0, entertn_N, 0.01))
 
-glimpse(factors)
-```
-
-Then we need to count the point of each variable around each bus stop.
-
-```{r}
-factor_count <- 
-  aggregate(POI_NAME_retail ~ BUS_STOP_N, data = factors, function(x) length(unique(x))) %>%
-  rename(retail_poi = POI_NAME_retail) %>%
-  left_join(
-    aggregate(POI_NAME_business ~ BUS_STOP_N, data = factors, function(x) length(unique(x))) %>%
-    rename(business_poi = POI_NAME_business),
-    by = join_by(BUS_STOP_N)) %>%
-  left_join(
-    aggregate(finance ~ BUS_STOP_N, data = factors, function(x) length(unique(x))) %>%
-    rename(finance_poi = finance),
-    by = join_by(BUS_STOP_N)) %>%
-  left_join(
-    aggregate(food ~ BUS_STOP_N, data = factors, function(x) length(unique(x))) %>%
-    rename(food_poi = food),
-    by = join_by(BUS_STOP_N)) %>% 
-  left_join(
-    aggregate(leisure ~ BUS_STOP_N, data = factors, function(x) length(unique(x))) %>%
-    rename(leisure_poi = leisure),
-    by = join_by(BUS_STOP_N)) %>% 
-  left_join(
-    aggregate(entertn ~ BUS_STOP_N, data = factors, function(x) length(unique(x))) %>%
-    rename(entertn_poi = entertn),
-    by = join_by(BUS_STOP_N)) 
-
-summary(factor_count)
+summary(bus_var)
 ```
 
 ::: callout-important
--   Since left = TRUE is default in st_join, so here I will join those variables in the sequence of number of observations, which is, retail \<- business \<- finance \<- food \<- leisure \<- entertain.
+-   Here we use length of intersect between the geometry of variables and hexagons as count of variables.
 
--   And to avoid NA count in some variable, I will set the "join = st_nearest_feature" instead of default "st_intersect".
+-   We need to treat any case of 0, give it a constant 0.1 for further model fitting.
 :::
 
 #### 4.1.5 Distance Matrix
@@ -573,7 +548,7 @@ summary(distPair)
 
 ### **4.2 Spatial Interaction Modelling**
 
-#### 4.2.1 Spatial Interactive model
+#### 4.2.1 Data preparation
 
 For this part, I will focus on weekend/holiday evening peak time interval for further analysis.
 
@@ -613,6 +588,7 @@ To ensure, let's check any case of origin == destination before continue.
 
 ```{r}
 #| code-fold: show
+#| eval: false
 weekendpm_flow %>%
   filter(ORIGIN_BS == DESTIN_BS)
 ```
@@ -632,33 +608,80 @@ Till now we can join the flow data with all 6 propulsive and Attractiveness vari
 
 ```{r}
 weekendpm_SIM <- weekendpm_dist %>%
-  left_join(factor_count, by = c("ORIGIN_BS"="BUS_STOP_N")) %>%
-  left_join(factor_count, by = c("DESTIN_BS"="BUS_STOP_N"), 
+  left_join(as.data.frame(bus_var) %>% select(-geometry), 
+            by = c("ORIGIN_BS"="BUS_STOP_N")) %>%
+  left_join(as.data.frame(bus_var) %>% select(-geometry), 
+            by = c("DESTIN_BS"="BUS_STOP_N"), 
             suffix = c("_orig", "_dest"))
 #weekendpm_SIM[is.na(weekendpm_SIM)] <- 0.1
 
 summary(weekendpm_SIM)
 ```
 
+#### 4.2.2 Multi-collinearity of explanatory variables
+
+Before we calibrate explanatory models, we should check the collinearity between our variables.
+
+```{r}
+#| fig-width: 10
+#| fig-height: 10
+var_cor <- cor(as.data.frame(weekendpm_SIM) %>% select(-c(1,2,19,20,21)))
+
+corrplot(var_cor, method = "color")
+```
+
+::: callout-notice
+Here we can find that:
+
+-   distance is noticeable negative correlated with number of trips;
+
+-   number of leisure points and number of food points are closely positive correlated;
+
+-   number of retail points and number of finance points are closely positive correlated.
+:::
+
+Then we want to check the r-squared of each explanatory variables to decide which variable we should choose for further analysis.
+
+```{r}
+vars <- colnames(weekendpm_SIM)[-c(1,2,3,19,20,21)]
+
+r_squared <- vector("numeric", length(vars))
+#p_value <- vector("numeric", length(vars))
+#coeffi <- vector("numeric", length(vars))
+
+for (i in seq_along(vars)) {
+#  formula <- as.formula(paste("TRIPS ~ log(", vars[i], ")", sep = ""))  
+#  model <- glm(formula, family = poisson(link = "log"), data = weekendpm_SIM)
+  r_squared[i] <- round(var_cor[1,i+1]^2,5)
+#  p_value[i] <- round(summary(model)$coefficients[2, 4],5)
+#  coeffi <- round(summary(model)$coefficients[2, 1],5)
+}
+
+data.frame(Variable = vars, R_squared = r_squared)
+```
+
+From above correlation analysis, I would drop number of retail, food and entertain point for further analysis.
+
+```{r}
+weekendpm_SIM_selected <- weekendpm_SIM %>%
+  select(-c("retail_N_orig", "retail_N_dest", "food_N_orig", "food_N_dest", "entertn_N_orig", "entertn_N_dest"))
+```
+
+#### 4.2.3 Unconstrained/Origin-constrained/Destination-constrained SIMs.
+
 Now we can calibrate an unconstrained spatial interaction model by using `glm().`
 
 ```{r}
 uncSIM <- glm(formula = TRIPS ~ 
-                log(retail_poi_orig) + 
-                log(retail_poi_dest) +
-                log(finance_poi_orig) + 
-                log(finance_poi_dest) +
-                log(business_poi_orig) + 
-                log(business_poi_dest) +
-                log(food_poi_orig) + 
-                log(food_poi_dest) +
-                log(leisure_poi_orig) + 
-                log(leisure_poi_dest) +
-                log(entertn_poi_orig) + 
-                log(entertn_poi_dest) +
+                log(finance_N_orig) + 
+                log(finance_N_dest) +
+                log(business_N_orig) + 
+                log(business_N_dest) +
+                log(leisure_N_orig) + 
+                log(leisure_N_dest) +
                 log(dist),
               family = poisson(link = "log"),
-              data = weekendpm_SIM,
+              data = weekendpm_SIM_selected,
               na.action = na.exclude)
 uncSIM
 ```
@@ -669,28 +692,22 @@ Then let's fit a origin/destination/doubly constrained SIM .
 #| eval: false
 origSIM <- glm(formula = TRIPS ~ 
                 ORIGIN_BS + 
-                log(retail_poi_dest) +
-                log(finance_poi_dest) +
-                log(business_poi_dest) +
-                log(food_poi_dest) +
-                log(leisure_poi_dest) +
-                log(entertn_poi_dest) +
+                log(finance_N_dest) +
+                log(business_N_dest) +
+                log(leisure_N_dest) +
                 log(dist),
               family = poisson(link = "log"),
-              data = weekendpm_SIM,
+              data = weekendpm_SIM_selected,
               na.action = na.exclude)
 
 destSIM <- glm(formula = TRIPS ~ 
                 DESTIN_BS + 
-                log(retail_poi_orig) +
-                log(finance_poi_orig) +
-                log(business_poi_orig) +
-                log(food_poi_orig) +
-                log(leisure_poi_orig) +
-                log(entertn_poi_orig) +
+                log(finance_N_orig) +
+                log(business_N_orig) +
+                log(leisure_N_orig) +
                 log(dist),
               family = poisson(link = "log"),
-              data = weekendpm_SIM,
+              data = weekendpm_SIM_selected,
               na.action = na.exclude)
 ```
 
@@ -701,15 +718,17 @@ dbcSIM <- glm(formula = TRIPS ~
                 DESTIN_BS +
                 log(dist),
               family = poisson(link = "log"),
-              data = weekendpm_SIM,
+              data = weekendpm_SIM_selected,
               na.action = na.exclude)
 
 tail(summary(dbcSIM)$coefficients, 3)
 ```
 
+#### 4.2.4 Model performance checking
+
 Check the performance of 4 models.
 
-#### 4.2.2 Visualizing Modelling results
+#### 4.2.5 Visualizing Modelling results
 
 Present the modelling results by using appropriate geovisualization and graphical visualization methods.
 
